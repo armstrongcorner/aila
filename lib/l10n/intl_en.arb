@@ -1,0 +1,13 @@
+{
+    "mainPage": "Main Page",
+    "searchPlaceholder": "Type here",
+    "searchEmptyErr": "Please type contents",
+    "clearContentBtnTitle": "Clear search result",
+    "ok": "OK",
+    "sendBtnTitle": "Send",
+    "username": "Username",
+    "usernameEmptyErr": "Username can not be empty",
+    "password": "Password",
+    "passwordEmptyErr": "Password can not be empty",
+    "loginBtn": "Login"
+}

@@ -1,0 +1,13 @@
+{
+    "mainPage": "首页",
+    "searchPlaceholder": "请输入",
+    "searchEmptyErr": "请输入交谈内容",
+    "clearContentBtnTitle": "清除搜索结果",
+    "ok": "确定",
+    "sendBtnTitle": "发送",
+    "username": "用户名",
+    "usernameEmptyErr": "用户名不能为空",
+    "password": "密码",
+    "passwordEmptyErr": "密码不能为空",
+    "loginBtn": "登录"
+}
