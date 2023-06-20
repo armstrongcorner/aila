@@ -1,16 +1,15 @@
+import 'package:aila/core/constant.dart';
 import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/core/utils/string_util.dart';
-import 'package:aila/m/user_send_content_model.dart';
 import 'package:aila/v/common_widgets/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../core/state/request_state_notifier.dart';
 import '../../core/use_l10n.dart';
-import '../../m/search_content_result_model.dart';
-import '../../vm/search_provider.dart';
+import '../../m/chat_context_model.dart';
+import '../../vm/chat_provider.dart';
 import 'chat_content.dart';
 
 class ChatPage extends HookConsumerWidget {
@@ -21,49 +20,58 @@ class ChatPage extends HookConsumerWidget {
     final userTextController = useTextEditingController();
     final userTextFocus = useFocusNode();
 
-    final RequestState<SearchContentResultModel?> searchState =
-        ref.watch(searchProvider);
+    final chatListState = ref.watch(chatProvider);
 
-    final chatList = useState([]);
-    useEffect(() {
-      Map<String, dynamic> userJsonMap = {
-        'value': '这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据',
-        'sendTimeStamp': 1686528610
-      };
-      chatList.value.insert(0, UserSendContentModel.fromJson(userJsonMap));
-      Map<String, dynamic> gptJsonMap = {
-        'value': {
-          'id': 'test',
-          'object': 'test',
-          'created': '1686528855',
-          'model': 'gpt',
-          'usage': {
-            'prompt_tokens': '895',
-            'completion_tokens': '218',
-            'totaltokens': null
-          },
-          'choices': [
-            {
-              'message': {
-                'role': 'assistant',
-                'content':
-                    '澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖'
-              },
-              'finish_reason': 'stop',
-              'index': 0
-            }
-          ],
-          'gptRequestTimeUTC': 1686528855,
-          'gptResponseTimeUTC': 1686528862,
-          'gptElapsedTimeInSec': 7.2408577,
-        },
-        'failureReason': null,
-        'isSuccess': true
-      };
-      chatList.value.insert(0, SearchContentResultModel.fromJson(gptJsonMap));
+    // final chatList = useState(<ChatContextModel>[]);
+    // useEffect(() {
+    //   Map<String, dynamic> userJsonMap = {
+    //     'role': 'user',
+    //     'content': '这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据',
+    //     'createAt': 1686528610
+    //   };
+    //   chatList.value.insert(0, ChatContextModel.fromJson(userJsonMap));
+    //   Map<String, dynamic> gptJsonMap = {
+    //     'value': {
+    //       'id': 'test',
+    //       'object': 'test',
+    //       'created': '1686528855',
+    //       'model': 'gpt',
+    //       'usage': {
+    //         'prompt_tokens': '895',
+    //         'completion_tokens': '218',
+    //         'totaltokens': null
+    //       },
+    //       'choices': [
+    //         {
+    //           'message': {
+    //             'role': 'assistant',
+    //             'content':
+    //                 '澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖'
+    //           },
+    //           'finish_reason': 'stop',
+    //           'index': 0
+    //         }
+    //       ],
+    //       'gptRequestTimeUTC': 1686528855,
+    //       'gptResponseTimeUTC': 1686528862,
+    //       'gptElapsedTimeInSec': 7.2408577,
+    //     },
+    //     'failureReason': null,
+    //     'isSuccess': true
+    //   };
+    //   final searchContentResultModel =
+    //       SearchContentResultModel.fromJson(gptJsonMap);
+    //   chatList.value.insert(
+    //       0,
+    //       ChatContextModel(
+    //           id: searchContentResultModel.value?.id,
+    //           role: searchContentResultModel.value?.choices?[0].message?.role,
+    //           content:
+    //               searchContentResultModel.value?.choices?[0].message?.content,
+    //           createAt: searchContentResultModel.value?.gptResponseTimeUTC));
 
-      return () {};
-    }, []);
+    //   return () {};
+    // }, []);
 
     return Container(
       color: Colors.white,
@@ -89,7 +97,27 @@ class ChatPage extends HookConsumerWidget {
                 children: [
                   // 1) chat area
                   Expanded(
-                    child: ChatContent(chatList.value),
+                    child: chatListState.when(
+                      data: (data) {
+                        return ChatContent(data);
+                      },
+                      error: (e, _) {
+                        return Center(
+                          child: Text(
+                            'Error',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 36.sp,
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () {
+                        return const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.grey));
+                      },
+                    ),
                   ),
                   // 2) user typing area
                   Container(
@@ -136,7 +164,7 @@ class ChatPage extends HookConsumerWidget {
                                 fontSize: 15,
                               ),
                               onSubmitted: (value) {
-                                sendUserText(userTextController.text, chatList);
+                                sendUserText(ref, userTextController.text);
                                 userTextController.clear();
                               },
                             ),
@@ -152,7 +180,7 @@ class ChatPage extends HookConsumerWidget {
                             child: const Icon(Icons.send),
                           ),
                           onTap: () {
-                            sendUserText(userTextController.text, chatList);
+                            sendUserText(ref, userTextController.text);
                             userTextController.clear();
                           },
                         ),
@@ -168,16 +196,24 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  void sendUserText(String userText, ValueNotifier<List<dynamic>> chatList) {
-    print('aaa: $userText');
-    if (isNotEmpty(userText)) {
-      chatList.value.insert(
-          0,
-          UserSendContentModel(
-              value: userText,
-              sendTimeStamp: DateUtil.getCurrentTimestamp() ~/ 1000000));
-      chatList.notifyListeners();
-      print('bbb: ${chatList.value}');
-    }
+  void sendUserText(WidgetRef ref, String userText) {
+    final userChat = ChatContextModel(
+      role: 'user',
+      content: userText,
+      createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
+      status: ChatStatus.failure,
+      isCompleteChatFlag: false,
+    );
+    ref.read(chatProvider.notifier).addChatAndSend(userChat);
+    // if (isNotEmpty(userText)) {
+    //   chatList.value.insert(
+    //       0,
+    //       ChatContextModel(
+    //           role: 'user',
+    //           content: userText,
+    //           createAt: DateUtil.getCurrentTimestamp() ~/ 1000));
+    //   chatList.notifyListeners();
+    //   print('bbb: ${chatList.value}');
+    // }
   }
 }

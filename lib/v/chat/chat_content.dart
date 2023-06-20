@@ -1,7 +1,7 @@
 import 'package:aila/assets/assets.dart';
+import 'package:aila/core/constant.dart';
 import 'package:aila/core/utils/date_util.dart';
-import 'package:aila/m/search_content_result_model.dart';
-import 'package:aila/m/user_send_content_model.dart';
+import 'package:aila/m/chat_context_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class ChatContent extends HookConsumerWidget {
   ChatContent(this.chatList, {super.key});
 
-  final List<dynamic>? chatList;
+  final List<ChatContextModel>? chatList;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -30,15 +30,12 @@ class ChatContent extends HookConsumerWidget {
         itemBuilder: (context, index) {
           var item = chatList?[index];
           if (item != null) {
-            if (item.runtimeType ==
-                const SearchContentResultModel().runtimeType) {
+            if (item.role == 'assistant') {
               // gpt response
-              return _renderRowSendByGPT(
-                  context, item as SearchContentResultModel);
-            } else if (item.runtimeType ==
-                const UserSendContentModel().runtimeType) {
+              return _renderRowSendByGPT(context, item);
+            } else if (item.role == 'user') {
               // user send
-              return _renderRowSendMe(context, item as UserSendContentModel);
+              return _renderRowSendMe(context, item);
             }
           }
           return null;
@@ -47,8 +44,7 @@ class ChatContent extends HookConsumerWidget {
     );
   }
 
-  Widget _renderRowSendByGPT(
-      BuildContext context, SearchContentResultModel item) {
+  Widget _renderRowSendByGPT(BuildContext context, ChatContextModel item) {
     return Container(
       padding: EdgeInsets.only(bottom: 20.h),
       child: Column(
@@ -57,7 +53,7 @@ class ChatContent extends HookConsumerWidget {
             padding: EdgeInsets.only(bottom: 20.h),
             child: Text(
               DateUtil.getPhotoTimeStr(DateTime.fromMillisecondsSinceEpoch(
-                  (item.value?.gptResponseTimeUTC ?? 0) * 1000)),
+                  (item.createAt ?? 0) * 1000)),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: const Color(0xFFA1A6BB),
@@ -116,7 +112,7 @@ class ChatContent extends HookConsumerWidget {
                             padding:
                                 EdgeInsets.fromLTRB(10.w, 10.h, 10.w, 10.h),
                             child: Text(
-                              item.value?.choices?[0].message?.content ?? '',
+                              item.content ?? '',
                               style: TextStyle(
                                 color: const Color(0xFF44516B),
                                 fontSize: 15.sp,
@@ -136,7 +132,7 @@ class ChatContent extends HookConsumerWidget {
     );
   }
 
-  Widget _renderRowSendMe(BuildContext context, UserSendContentModel item) {
+  Widget _renderRowSendMe(BuildContext context, ChatContextModel item) {
     return Container(
       padding: EdgeInsets.only(bottom: 20.h),
       child: Column(
@@ -145,7 +141,7 @@ class ChatContent extends HookConsumerWidget {
             padding: EdgeInsets.only(bottom: 20.h),
             child: Text(
               DateUtil.getPhotoTimeStr(DateTime.fromMillisecondsSinceEpoch(
-                  (item.sendTimeStamp ?? 0) * 1000)),
+                  (item.createAt ?? 0) * 1000)),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: const Color(0xFFA1A6BB),
@@ -214,7 +210,7 @@ class ChatContent extends HookConsumerWidget {
                                 ),
                                 padding: const EdgeInsets.all(10),
                                 child: Text(
-                                  item.value ?? '',
+                                  item.content ?? '',
                                   softWrap: true,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -223,35 +219,31 @@ class ChatContent extends HookConsumerWidget {
                                 ),
                               ),
                             ),
-                            // Container(
-                            //   margin: EdgeInsets.fromLTRB(0, 8.h, 8.w, 0),
-                            //   child: item['status'] == SENDING_TYPE
-                            //       ? ConstrainedBox(
-                            //           constraints: BoxConstraints(
-                            //               maxWidth: 10.w, maxHeight: 10.h),
-                            //           child: SizedBox(
-                            //             width: 10.w,
-                            //             height: 10.h,
-                            //             child: const CircularProgressIndicator(
-                            //               strokeWidth: 2.0,
-                            //               valueColor:
-                            //                   AlwaysStoppedAnimation<Color>(
-                            //                       Colors.grey),
-                            //             ),
-                            //           ),
-                            //         )
-                            //       : item['status'] == FAILED_TYPE
-                            //           ? const Icon(
-                            //               Icons.error,
-                            //               size: 15,
-                            //             )
-                            //           // Image(
-                            //           // width: 11.w,
-                            //           // height: 20.h,
-                            //           // image: AssetImage(
-                            //           //     "static/images/network_error_icon.png"))
-                            //           : Container(),
-                            // ),
+                            Container(
+                              margin: EdgeInsets.fromLTRB(0, 8.h, 8.w, 0),
+                              child: item.status == ChatStatus.sending
+                                  ? ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                          maxWidth: 20.w, maxHeight: 20.h),
+                                      child: SizedBox(
+                                        width: 15.w,
+                                        height: 15.h,
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2.0,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.grey),
+                                        ),
+                                      ),
+                                    )
+                                  : item.status == ChatStatus.failure
+                                      ? Icon(
+                                          Icons.error,
+                                          size: 20.sp,
+                                          color: Colors.red,
+                                        )
+                                      : Container(),
+                            ),
                           ],
                         ),
                       ],

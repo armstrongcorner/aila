@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'app.dart';
+import 'core/db/local_storage.dart';
 import 'core/utils/log.dart';
 import 'core/utils/sp_util.dart';
 
@@ -16,6 +18,9 @@ void main() {
     RendererBinding.instance.ensureSemantics();
 
     await SpUtil.getInstance();
+    final localStorage = WSLocalStorage();
+    await localStorage.init();
+
     runApp(const ProviderScope(child: App()));
   }, _handleError);
 }

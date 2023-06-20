@@ -4,7 +4,7 @@ class DateUtil {
   DateUtil._();
 
   static int getCurrentTimestamp() {
-    return DateTime.now().microsecondsSinceEpoch;
+    return DateTime.now().millisecondsSinceEpoch;
   }
 
   static String getDetailedTimeStr(DateTime dateTime, String separator) {

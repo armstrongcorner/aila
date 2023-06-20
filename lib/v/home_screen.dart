@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../core/state/request_state_notifier.dart';
 import '../core/utils/string_util.dart';
 import '../m/search_content_result_model.dart';
-import '../vm/search_provider.dart';
+import '../vm/chat_provider.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});

@@ -1,5 +1,18 @@
 // ignore_for_file: constant_identifier_names
 
+enum ChatStatus {
+  sending,
+  done,
+  failure,
+}
+
+/*
+ * Hive related
+ */
+const String BOX_NAME_CHAT = 'chat_box';
+// Box Type ID
+const int BOX_TYPE_ID_CHAT = 1;
+
 /*
  * Network related
  */
