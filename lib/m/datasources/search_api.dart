@@ -20,7 +20,14 @@ class SearchApi {
       '/chat/kratos/dese',
       {
         'GptEngine': 'gpt-3.5-turbo',
-        'Messages': jsonEncode(chatList.map((e) => e.toJson()).toList()),
+        'Messages': chatList.map((e) {
+          var chatMap = e.toJson();
+          chatMap.remove('id');
+          chatMap.remove('createAt');
+          chatMap.remove('status');
+          chatMap.remove('isCompleteChatFlag');
+          return chatMap;
+        }).toList(),
       },
       myBaseUrl: CHAT_URL,
     );

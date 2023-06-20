@@ -120,15 +120,15 @@ class LoginForm extends HookConsumerWidget {
                 ),
               ),
               const Spacer(flex: 2),
-              WSLoadingButton(
-                onPressed: () async {
-                  await checkForm(
-                      context, ref, usernameController, passwordController);
-                },
-                loading: loading,
-                child: SizedBox(
-                  width: 130.w,
-                  height: 40.h,
+              SizedBox(
+                width: 180.w,
+                height: 40.h,
+                child: WSLoadingButton(
+                  onPressed: () async {
+                    await checkForm(
+                        context, ref, usernameController, passwordController);
+                  },
+                  loading: loading,
                   child: Center(
                       child: Text(
                     useL10n(theContext: context).loginBtn,
