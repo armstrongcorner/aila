@@ -201,7 +201,7 @@ class ChatPage extends HookConsumerWidget {
       role: 'user',
       content: userText,
       createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
-      status: ChatStatus.failure,
+      status: ChatStatus.sending,
       isCompleteChatFlag: false,
     );
     ref.read(chatProvider.notifier).addChatAndSend(userChat);

@@ -192,7 +192,7 @@ class ChatContent extends HookConsumerWidget {
                           children: [
                             ConstrainedBox(
                               constraints: BoxConstraints(
-                                maxWidth: 1.0.sw - 90.w,
+                                maxWidth: 0.7.sw,
                               ),
                               child: Container(
                                 margin: EdgeInsets.only(top: 8.h, right: 10.w),
