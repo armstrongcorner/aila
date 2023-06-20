@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../v/chat/chat_screen.dart';
-import '../../v/home_screen.dart';
 import 'navigation_service.dart';
 
 class RouteURL {
@@ -24,12 +23,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteURL.splash,
         builder: (context, state) {
           return const SplashPage();
-        },
-      ),
-      GoRoute(
-        path: RouteURL.home,
-        builder: (context, state) {
-          return const HomePage();
         },
       ),
       GoRoute(

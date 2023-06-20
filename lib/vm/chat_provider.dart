@@ -103,27 +103,3 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
     }
   }
 }
-
-final searchProvider = StateNotifierProvider.autoDispose<SearchProvider,
-        RequestState<SearchContentResultModel?>>(
-    (ref) => SearchProvider(ref.read(searchApiProvider)));
-
-class SearchProvider extends RequestStateNotifier<SearchContentResultModel?> {
-  SearchProvider(this._searchApi) : super();
-  final SearchApi _searchApi;
-
-  Future<RequestState<SearchContentResultModel?>> search(
-      List<ChatContextModel> chatList) async {
-    final RequestState<SearchContentResultModel?> res =
-        await makeRequest(() async {
-      try {
-        final SearchContentResultModel? resultModel =
-            await _searchApi.search(chatList);
-        return resultModel;
-      } catch (e) {
-        rethrow;
-      }
-    });
-    return res;
-  }
-}
