@@ -1,3 +1,4 @@
+import 'package:aila/core/utils/sp_util.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../core/state/request_state_notifier.dart';
@@ -50,3 +51,11 @@ class UserProvider extends RequestStateNotifier<UserInfoResultModel?> {
     return res;
   }
 }
+
+final logoutProvider = FutureProvider.autoDispose((ref) async {
+  try {
+    await SpUtil.putString(SpKeys.TOKEN, '');
+  } catch (e) {
+    rethrow;
+  }
+});

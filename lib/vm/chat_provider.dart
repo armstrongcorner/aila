@@ -5,7 +5,6 @@ import 'package:aila/m/datasources/local/chat_local_data_source.dart';
 import 'package:aila/m/search_content_result_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../core/state/request_state_notifier.dart';
 import '../core/utils/log.dart';
 import '../m/chat_context_model.dart';
 import '../m/datasources/search_api.dart';

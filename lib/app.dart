@@ -1,4 +1,6 @@
+import 'package:aila/vm/misc_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,21 +28,24 @@ class App extends HookConsumerWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: L10n.supportedLocales,
+          locale: ref.watch(languageProvider),
           routeInformationParser: appRouter.routeInformationParser,
           routeInformationProvider: appRouter.routeInformationProvider,
           routerDelegate: appRouter.routerDelegate,
-          builder: (context, child) {
-            return GestureDetector(
-              onTap: () {
-                FocusScopeNode currentFocus = FocusScope.of(context);
-                if (!currentFocus.hasPrimaryFocus &&
-                    currentFocus.focusedChild != null) {
-                  FocusManager.instance.primaryFocus!.unfocus();
-                }
-              },
-              child: child,
-            );
-          },
+          builder: EasyLoading.init(
+            builder: (context, child) {
+              return GestureDetector(
+                onTap: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+                  if (!currentFocus.hasPrimaryFocus &&
+                      currentFocus.focusedChild != null) {
+                    FocusManager.instance.primaryFocus!.unfocus();
+                  }
+                },
+                child: child,
+              );
+            },
+          ),
         );
       },
     );

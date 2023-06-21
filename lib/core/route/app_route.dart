@@ -4,14 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../v/chat/chat_screen.dart';
+import '../../v/setting/setting_screen.dart';
 import 'navigation_service.dart';
 
 class RouteURL {
   static const String splash = '/';
-  static const String home = '/home';
   static const String login = '/login';
   static const String chat = '/chat';
-  static const String about = '/about';
+  static const String setting = '/setting';
   static const String url = '/url';
 }
 
@@ -35,6 +35,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteURL.chat,
         builder: (context, state) {
           return const ChatPage();
+        },
+      ),
+      GoRoute(
+        path: RouteURL.setting,
+        builder: (context, state) {
+          return const SettingPage();
         },
       ),
       // GoRoute(

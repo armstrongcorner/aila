@@ -1,6 +1,6 @@
 import 'package:aila/core/constant.dart';
+import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/date_util.dart';
-import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/v/common_widgets/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -22,57 +22,6 @@ class ChatPage extends HookConsumerWidget {
 
     final chatListState = ref.watch(chatProvider);
 
-    // final chatList = useState(<ChatContextModel>[]);
-    // useEffect(() {
-    //   Map<String, dynamic> userJsonMap = {
-    //     'role': 'user',
-    //     'content': '这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据，这是一条测试数据',
-    //     'createAt': 1686528610
-    //   };
-    //   chatList.value.insert(0, ChatContextModel.fromJson(userJsonMap));
-    //   Map<String, dynamic> gptJsonMap = {
-    //     'value': {
-    //       'id': 'test',
-    //       'object': 'test',
-    //       'created': '1686528855',
-    //       'model': 'gpt',
-    //       'usage': {
-    //         'prompt_tokens': '895',
-    //         'completion_tokens': '218',
-    //         'totaltokens': null
-    //       },
-    //       'choices': [
-    //         {
-    //           'message': {
-    //             'role': 'assistant',
-    //             'content':
-    //                 '澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖澳大利亚袋鼠当前现状：过度繁殖'
-    //           },
-    //           'finish_reason': 'stop',
-    //           'index': 0
-    //         }
-    //       ],
-    //       'gptRequestTimeUTC': 1686528855,
-    //       'gptResponseTimeUTC': 1686528862,
-    //       'gptElapsedTimeInSec': 7.2408577,
-    //     },
-    //     'failureReason': null,
-    //     'isSuccess': true
-    //   };
-    //   final searchContentResultModel =
-    //       SearchContentResultModel.fromJson(gptJsonMap);
-    //   chatList.value.insert(
-    //       0,
-    //       ChatContextModel(
-    //           id: searchContentResultModel.value?.id,
-    //           role: searchContentResultModel.value?.choices?[0].message?.role,
-    //           content:
-    //               searchContentResultModel.value?.choices?[0].message?.content,
-    //           createAt: searchContentResultModel.value?.gptResponseTimeUTC));
-
-    //   return () {};
-    // }, []);
-
     return Container(
       color: Colors.white,
       child: SafeArea(
@@ -84,10 +33,22 @@ class ChatPage extends HookConsumerWidget {
           appBar: AppBar(
             title: Text(
               useL10n().mainPage,
-              style: const TextStyle(color: Color(0xFF44516B)),
+              style: const TextStyle(color: WSColor.primaryFontColor),
             ),
             backgroundColor: Colors.white,
             elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  final appRoute = ref.read(appRouterProvider);
+                  appRoute.push(RouteURL.setting);
+                },
+                icon: const Icon(
+                  Icons.settings,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
           ),
           body: SizedBox(
             width: double.infinity,
@@ -205,15 +166,5 @@ class ChatPage extends HookConsumerWidget {
       isCompleteChatFlag: false,
     );
     ref.read(chatProvider.notifier).addChatAndSend(userChat);
-    // if (isNotEmpty(userText)) {
-    //   chatList.value.insert(
-    //       0,
-    //       ChatContextModel(
-    //           role: 'user',
-    //           content: userText,
-    //           createAt: DateUtil.getCurrentTimestamp() ~/ 1000));
-    //   chatList.notifyListeners();
-    //   print('bbb: ${chatList.value}');
-    // }
   }
 }

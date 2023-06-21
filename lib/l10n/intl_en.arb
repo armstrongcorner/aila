@@ -1,5 +1,6 @@
 {
     "mainPage": "Main Page",
+    "settingPage": "Setting",
     "searchPlaceholder": "Type here",
     "searchEmptyErr": "Please type contents",
     "clearContentBtnTitle": "Clear search result",
@@ -9,5 +10,7 @@
     "usernameEmptyErr": "Username can not be empty",
     "password": "Password",
     "passwordEmptyErr": "Password can not be empty",
-    "loginBtn": "Login"
+    "loginBtn": "Login",
+    "logoutBtn": "Logout",
+    "currentLang": "Language"
 }

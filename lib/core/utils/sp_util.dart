@@ -181,11 +181,6 @@ class SpKeys {
   static const USE_BIOMETRICS = 'use_biometrics';
   static const REMEMBER_USERNAME = 'remember_username';
   static const USERNAME = 'username';
-  static const PHONE_NUMBER = 'phone_number';
-  static const NICKNAME = 'nickname';
-  static const USER_TYPE = 'user_type';
   static const TOKEN = 'token';
-  static const LOGIN_PHONE_LIST = 'login_phone_list';
-  static const SHOW_FIRST_GUIDE = 'show_first_guide';
   static const SELECTED_LANGUAGE = 'selected_language';
 }

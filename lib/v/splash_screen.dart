@@ -33,8 +33,6 @@ class SplashPage extends HookConsumerWidget {
             const Center(child: CircularProgressIndicator(color: Colors.grey)),
       ),
       success: (data) {
-        print('aaaaaa ${data?.toJson()}');
-
         return Container(color: WSColor.primaryBgColor);
       },
       error: (Object error, StackTrace stackTrace) {
