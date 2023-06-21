@@ -35,6 +35,7 @@ class ChatPage extends HookConsumerWidget {
               useL10n().mainPage,
               style: const TextStyle(color: WSColor.primaryFontColor),
             ),
+            centerTitle: true,
             backgroundColor: Colors.white,
             elevation: 0,
             actions: [

@@ -34,6 +34,7 @@ class SettingPage extends HookConsumerWidget {
               useL10n().settingPage,
               style: const TextStyle(color: WSColor.primaryFontColor),
             ),
+            centerTitle: true,
             backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
