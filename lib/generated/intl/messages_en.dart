@@ -24,11 +24,21 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "clearContentBtnTitle":
             MessageLookupByLibrary.simpleMessage("Clear search result"),
+        "currentLang": MessageLookupByLibrary.simpleMessage("Language"),
+        "loginBtn": MessageLookupByLibrary.simpleMessage("Login"),
+        "logoutBtn": MessageLookupByLibrary.simpleMessage("Logout"),
         "mainPage": MessageLookupByLibrary.simpleMessage("Main Page"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
+        "password": MessageLookupByLibrary.simpleMessage("Password"),
+        "passwordEmptyErr":
+            MessageLookupByLibrary.simpleMessage("Password can not be empty"),
         "searchEmptyErr":
             MessageLookupByLibrary.simpleMessage("Please type contents"),
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("Type here"),
-        "sendBtnTitle": MessageLookupByLibrary.simpleMessage("Send")
+        "sendBtnTitle": MessageLookupByLibrary.simpleMessage("Send"),
+        "settingPage": MessageLookupByLibrary.simpleMessage("Setting"),
+        "username": MessageLookupByLibrary.simpleMessage("Username"),
+        "usernameEmptyErr":
+            MessageLookupByLibrary.simpleMessage("Username can not be empty")
       };
 }

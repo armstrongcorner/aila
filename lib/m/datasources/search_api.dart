@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:aila/core/api_client.dart';
 import 'package:aila/core/constant.dart';
 import 'package:aila/m/search_content_result_model.dart';

@@ -1,5 +1,6 @@
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/db/local_storage.dart';
+import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/m/chat_context_model.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -18,23 +19,29 @@ class ChatLocalDataSource {
   late final WSLocalStorage storage = _ref.read(localStorageProvider);
   late final SessionManager sessionManager = _ref.read(sessionManagerProvider);
 
-  Future<List<ChatHiveModel>> getChats() async {
+  Future<List<ChatHiveModel>> getChats({String? username}) async {
     final Box<ChatHiveModel> chatBox =
         await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);
-    return chatBox.values.toList();
+    if (isNotEmpty(username)) {
+      return chatBox.values
+          .where((element) => element.clientUsername == username)
+          .toList();
+    } else {
+      return chatBox.values.toList();
+    }
   }
 
   Future<void> addChat(ChatHiveModel chatHiveModel) async {
     final Box<ChatHiveModel> chatBox =
         await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);
     await chatBox.add(chatHiveModel);
-
-    Log.d('ChatLocalDataSource', 'add chat in local data');
   }
 
-  Future<void> updateChat(
-      {ChatContextModel? chatContextModel,
-      ChatHiveModel? chatHiveModel}) async {}
+  Future<void> updateChat(int index, ChatHiveModel chatHiveModel) async {
+    final Box<ChatHiveModel> chatBox =
+        await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);
+    await chatBox.putAt(index, chatHiveModel);
+  }
 
   Future<void> searchChatBy() async {}
   // Future<void> saveAccount(AuthorizationModel authModel,

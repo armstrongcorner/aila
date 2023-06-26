@@ -1,39 +1,61 @@
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/db/chat_hive_model.dart';
+import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/m/datasources/local/chat_local_data_source.dart';
 import 'package:aila/m/search_content_result_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../core/session_manager.dart';
 import '../core/utils/log.dart';
 import '../m/chat_context_model.dart';
 import '../m/datasources/search_api.dart';
 
 final chatProvider = StateNotifierProvider.autoDispose<ChatsProvider,
         AsyncValue<List<ChatContextModel>>>(
-    (ref) => ChatsProvider(
-        ref.read(chatLocalDataSourceProvider), ref.read(searchApiProvider)));
+    (ref) => ChatsProvider(ref.read(chatLocalDataSourceProvider),
+        ref.read(searchApiProvider), ref.read(sessionManagerProvider)));
 
 class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
-  ChatsProvider(this._chatLocalDataSource, this._searchApi)
+  ChatsProvider(
+      this._chatLocalDataSource, this._searchApi, this._sessionManager)
       : super(const AsyncData([])) {
-    getChats();
+    getChatHistory();
   }
 
   final tag = 'ChatsProvider';
 
   final ChatLocalDataSource _chatLocalDataSource;
   final SearchApi _searchApi;
+  final SessionManager _sessionManager;
 
-  Future<void> getChats() async {
+  Future<void> getChatHistory() async {
     try {
       state = const AsyncValue.loading();
-      final chatHiveList = await _chatLocalDataSource.getChats();
+      final chatHiveList = await _chatLocalDataSource.getChats(
+          username: _sessionManager.getUsername());
       final str = StringBuffer('\n');
-      for (final ChatHiveModel item in chatHiveList) {
+      for (var i = 0; i < chatHiveList.length; i++) {
+        var item = chatHiveList[i];
+
+        if (i == (chatHiveList.length - 1)) {
+          // last one, need to check complete flag, or compare time to mark complete or not
+          if (!(item.isCompleteChatFlag ?? false)) {
+            if (DateUtil.comppareDateTime(
+                    item.createAt ?? 0, DateTime.now().millisecondsSinceEpoch) >
+                CHAT_COMPLETE_GAP_IN_MINUTES) {
+              // Gap longer than 1 hr (60 mins), mark the last chat item to complete
+              item.isCompleteChatFlag = true;
+              // Update related Hive item
+              await _chatLocalDataSource.updateChat(
+                  chatHiveList.length - 1, item);
+            }
+          }
+        }
         str.writeln(
-            '{id: ${item.id}, role: ${item.role}, content: ${item.content}, createAt: ${item.createAt}}');
+            '{id: ${item.id}, role: ${item.role}, content: ${item.content}, createAt: ${item.createAt}, isSuccess: ${item.isSuccess}, isComplete: ${item.isCompleteChatFlag}, username: ${item.clientUsername}}');
       }
+      // for (final ChatHiveModel item in chatHiveList) {}
       Log.d(tag, 'getChats(): ${chatHiveList.length}: $str');
       if (mounted) {
         state = AsyncData(
@@ -69,15 +91,18 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
             chatContextModel.copyWith(status: ChatStatus.done);
         chatList.insert(0, sentChatContextModel);
         // 3-2) Local cache the user sent and the search result
-        _chatLocalDataSource
-            .addChat(ChatHiveModel.fromChat(sentChatContextModel));
+        ChatHiveModel convertedChatHive =
+            ChatHiveModel.fromChat(sentChatContextModel);
+        convertedChatHive.clientUsername = _sessionManager.getUsername();
+        _chatLocalDataSource.addChat(convertedChatHive);
         _chatLocalDataSource.addChat(ChatHiveModel(
             id: resultModel.value?.id,
             role: theSearchResult?.role,
             content: theSearchResult?.content,
             createAt: resultModel.value?.gptResponseTimeUTC,
             isSuccess: true,
-            isCompleteChatFlag: false));
+            isCompleteChatFlag: false,
+            clientUsername: _sessionManager.getUsername()));
         // 3-3) Show the search result
         chatList.insert(
             0,

@@ -60,6 +60,16 @@ class S {
     );
   }
 
+  /// `Setting`
+  String get settingPage {
+    return Intl.message(
+      'Setting',
+      name: 'settingPage',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Type here`
   String get searchPlaceholder {
     return Intl.message(
@@ -105,6 +115,76 @@ class S {
     return Intl.message(
       'Send',
       name: 'sendBtnTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Username`
+  String get username {
+    return Intl.message(
+      'Username',
+      name: 'username',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Username can not be empty`
+  String get usernameEmptyErr {
+    return Intl.message(
+      'Username can not be empty',
+      name: 'usernameEmptyErr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password`
+  String get password {
+    return Intl.message(
+      'Password',
+      name: 'password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password can not be empty`
+  String get passwordEmptyErr {
+    return Intl.message(
+      'Password can not be empty',
+      name: 'passwordEmptyErr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login`
+  String get loginBtn {
+    return Intl.message(
+      'Login',
+      name: 'loginBtn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logout`
+  String get logoutBtn {
+    return Intl.message(
+      'Logout',
+      name: 'logoutBtn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language`
+  String get currentLang {
+    return Intl.message(
+      'Language',
+      name: 'currentLang',
       desc: '',
       args: [],
     );

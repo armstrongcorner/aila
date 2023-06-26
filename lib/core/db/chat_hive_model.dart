@@ -14,6 +14,7 @@ class ChatHiveModel extends HiveObject {
     this.createAt,
     this.isSuccess,
     this.isCompleteChatFlag,
+    this.clientUsername,
   });
   @HiveField(0)
   String? id;
@@ -27,10 +28,12 @@ class ChatHiveModel extends HiveObject {
   bool? isSuccess;
   @HiveField(6, defaultValue: false)
   bool? isCompleteChatFlag;
+  @HiveField(7)
+  String? clientUsername;
 
   @override
   String toString() {
-    return '{id: $id, role: $role, content: $content, createAt: $createAt, isSuccess: $isSuccess, isCompleteChatFlag: $isCompleteChatFlag}';
+    return '{id: $id, role: $role, content: $content, createAt: $createAt, isSuccess: $isSuccess, isCompleteChatFlag: $isCompleteChatFlag, clientUsername: $clientUsername}';
   }
 
   factory ChatHiveModel.fromChat(ChatContextModel chatContextModel) =>

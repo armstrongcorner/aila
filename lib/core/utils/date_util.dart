@@ -34,4 +34,22 @@ class DateUtil {
         targetDateTime.millisecondsSinceEpoch <=
             endDateTime.millisecondsSinceEpoch;
   }
+
+  static int comppareDateTime(int startTimestamp, int endTimestamp,
+      {bool isSec = false, bool isMin = true, bool isHr = false}) {
+    final startDate = DateTime.fromMillisecondsSinceEpoch(startTimestamp);
+    final endDate = DateTime.fromMillisecondsSinceEpoch(endTimestamp);
+    final dateDiff = endDate.difference(startDate);
+
+    int diffQty = 0;
+    if (isSec) {
+      diffQty = dateDiff.inSeconds;
+    } else if (isMin) {
+      diffQty = dateDiff.inMinutes;
+    } else if (isHr) {
+      diffQty = dateDiff.inHours;
+    }
+
+    return diffQty;
+  }
 }

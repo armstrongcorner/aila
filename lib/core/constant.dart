@@ -32,3 +32,9 @@ const String CODE_SERVICE_UNAVAILABLE = '0';
 const String CODE_NETWORK_EXCEPTION = '4444';
 const String CODE_INVALI_OPERATION = '400';
 const String CODE_NETWORK_TIMEOUT = '504';
+
+/*
+ * Chat settings
+ */
+const int CHAT_COMPLETE_GAP_IN_MINUTES = 60;
+const int MAX_CHAT_DEPTH = 10;

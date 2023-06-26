@@ -23,10 +23,18 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "clearContentBtnTitle": MessageLookupByLibrary.simpleMessage("清除搜索结果"),
+        "currentLang": MessageLookupByLibrary.simpleMessage("语言"),
+        "loginBtn": MessageLookupByLibrary.simpleMessage("登录"),
+        "logoutBtn": MessageLookupByLibrary.simpleMessage("退出"),
         "mainPage": MessageLookupByLibrary.simpleMessage("首页"),
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
+        "password": MessageLookupByLibrary.simpleMessage("密码"),
+        "passwordEmptyErr": MessageLookupByLibrary.simpleMessage("密码不能为空"),
         "searchEmptyErr": MessageLookupByLibrary.simpleMessage("请输入交谈内容"),
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("请输入"),
-        "sendBtnTitle": MessageLookupByLibrary.simpleMessage("发送")
+        "sendBtnTitle": MessageLookupByLibrary.simpleMessage("发送"),
+        "settingPage": MessageLookupByLibrary.simpleMessage("设置"),
+        "username": MessageLookupByLibrary.simpleMessage("用户名"),
+        "usernameEmptyErr": MessageLookupByLibrary.simpleMessage("用户名不能为空")
       };
 }
