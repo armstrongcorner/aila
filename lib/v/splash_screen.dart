@@ -3,6 +3,7 @@ import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/vm/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../core/general_exception.dart';
@@ -40,6 +41,13 @@ class SplashPage extends HookConsumerWidget {
             GeneralException.toGeneralException(error as Exception));
         return Container(
           color: Colors.red,
+          child: Center(
+            child: Column(
+              children: [
+                Text(error.toString()),
+              ],
+            ),
+          ),
         );
       },
     );

@@ -39,7 +39,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         var item = chatHiveList[i];
 
         if (i == (chatHiveList.length - 1)) {
-          // Last one, need to check complete flag, or compare time to mark complete or not
+          // Last one, need to check complete flag, or compare time to mark complete or not.
           if (!(item.isCompleteChatFlag ?? false)) {
             if (DateUtil.comppareDateTime((item.createAt ?? 0) * 1000,
                     DateUtil.getCurrentTimestamp()) >
