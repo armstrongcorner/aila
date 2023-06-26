@@ -12,5 +12,6 @@
     "passwordEmptyErr": "密码不能为空",
     "loginBtn": "登录",
     "logoutBtn": "退出",
-    "currentLang": "语言"
+    "currentLang": "语言",
+    "chatCompleteMark": "对话已结束"
 }

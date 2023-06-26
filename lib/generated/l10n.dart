@@ -189,6 +189,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Chat complete`
+  String get chatCompleteMark {
+    return Intl.message(
+      'Chat complete',
+      name: 'chatCompleteMark',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -1,6 +1,7 @@
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/date_util.dart';
+import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/v/common_widgets/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -159,13 +160,15 @@ class ChatPage extends HookConsumerWidget {
   }
 
   void sendUserText(WidgetRef ref, String userText) {
-    final userChat = ChatContextModel(
-      role: 'user',
-      content: userText,
-      createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
-      status: ChatStatus.sending,
-      isCompleteChatFlag: false,
-    );
-    ref.read(chatProvider.notifier).addChatAndSend(userChat);
+    if (isNotEmpty(userText)) {
+      final userChat = ChatContextModel(
+        role: 'user',
+        content: userText,
+        createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
+        status: ChatStatus.sending,
+        isCompleteChatFlag: false,
+      );
+      ref.read(chatProvider.notifier).addChatAndSend(userChat);
+    }
   }
 }

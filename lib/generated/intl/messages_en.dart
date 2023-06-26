@@ -22,6 +22,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "chatCompleteMark":
+            MessageLookupByLibrary.simpleMessage("Chat complete"),
         "clearContentBtnTitle":
             MessageLookupByLibrary.simpleMessage("Clear search result"),
         "currentLang": MessageLookupByLibrary.simpleMessage("Language"),

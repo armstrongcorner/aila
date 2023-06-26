@@ -12,5 +12,6 @@
     "passwordEmptyErr": "Password can not be empty",
     "loginBtn": "Login",
     "logoutBtn": "Logout",
-    "currentLang": "Language"
+    "currentLang": "Language",
+    "chatCompleteMark": "Chat complete"
 }

@@ -2,10 +2,13 @@ import 'package:aila/assets/assets.dart';
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/m/chat_context_model.dart';
+import 'package:aila/v/common_widgets/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../core/use_l10n.dart';
 
 class ChatContent extends HookConsumerWidget {
   ChatContent(this.chatList, {super.key});
@@ -127,6 +130,35 @@ class ChatContent extends HookConsumerWidget {
               ],
             ),
           ),
+          if (item.isCompleteChatFlag ?? false) ...[
+            Padding(
+              padding: EdgeInsets.only(left: 30.w, right: 30.w, top: 20.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: Container(height: 0.3.h, color: Colors.grey)),
+                  SizedBox(width: 10.w),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(15.w, 8.h, 15.w, 8.h),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFA1A6BB),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: Text(
+                      useL10n(theContext: context).chatCompleteMark,
+                      style: TextStyle(
+                        color: WSColor.primaryFontColor,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(child: Container(height: 0.3.h, color: Colors.grey)),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -256,5 +288,32 @@ class ChatContent extends HookConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _renderRowCompleteMark(
+      BuildContext context, List<ChatContextModel>? chatList, int index) {
+    final currentItem = chatList?[index];
+    if (currentItem?.isCompleteChatFlag ?? false) {
+      // Show the complete mark
+      return Container(
+        padding: EdgeInsets.fromLTRB(10.w, 15.h, 10.w, 15.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: Container(color: Colors.grey)),
+            SizedBox(width: 10.w),
+            Container(
+              child: Text('data'),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(child: Container(color: Colors.grey)),
+          ],
+        ),
+      );
+    } else {
+      Container();
+    }
+    return Container();
   }
 }

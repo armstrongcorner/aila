@@ -37,4 +37,4 @@ const String CODE_NETWORK_TIMEOUT = '504';
  * Chat settings
  */
 const int CHAT_COMPLETE_GAP_IN_MINUTES = 60;
-const int MAX_CHAT_DEPTH = 10;
+const int MAX_CHAT_DEPTH = 15;

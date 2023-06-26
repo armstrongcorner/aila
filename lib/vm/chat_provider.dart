@@ -39,10 +39,10 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         var item = chatHiveList[i];
 
         if (i == (chatHiveList.length - 1)) {
-          // last one, need to check complete flag, or compare time to mark complete or not
+          // Last one, need to check complete flag, or compare time to mark complete or not
           if (!(item.isCompleteChatFlag ?? false)) {
-            if (DateUtil.comppareDateTime(
-                    item.createAt ?? 0, DateTime.now().millisecondsSinceEpoch) >
+            if (DateUtil.comppareDateTime((item.createAt ?? 0) * 1000,
+                    DateUtil.getCurrentTimestamp()) >
                 CHAT_COMPLETE_GAP_IN_MINUTES) {
               // Gap longer than 1 hr (60 mins), mark the last chat item to complete
               item.isCompleteChatFlag = true;
@@ -55,7 +55,6 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         str.writeln(
             '{id: ${item.id}, role: ${item.role}, content: ${item.content}, createAt: ${item.createAt}, isSuccess: ${item.isSuccess}, isComplete: ${item.isCompleteChatFlag}, username: ${item.clientUsername}}');
       }
-      // for (final ChatHiveModel item in chatHiveList) {}
       Log.d(tag, 'getChats(): ${chatHiveList.length}: $str');
       if (mounted) {
         state = AsyncData(
@@ -74,12 +73,28 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       // 1) Show user chat content with sending status
       List<ChatContextModel> chatList = state.hasValue ? state.value ?? [] : [];
       chatList.insert(0, chatContextModel);
-      // await _chatLocalDataSource
-      //     .addChat(ChatHiveModel.fromChat(chatContextModel));
       state = AsyncData(chatList);
       // 2) Send the chat to API
+      // 2-1) Make the chat context (chat list) which would be sent to gpt.
+      // It should <= MAX_CHAT_DEPTH and stop at the chat complete flag
+      List<ChatContextModel> chatContextList = [];
+      for (var i = 0; (i < chatList.length && i < MAX_CHAT_DEPTH); i++) {
+        if (!(chatList[i].isCompleteChatFlag ?? false)) {
+          chatContextList.add(chatList[i]);
+        } else {
+          break;
+        }
+      }
+      // 2-2) The last one should from user sent content, not the gpt response
+      if (isNotEmptyList(chatContextList)) {
+        final lastItem = chatContextList.last;
+        if (lastItem.role != 'user') {
+          chatContextList.removeLast();
+        }
+      }
+      // 2-3) Sent the chat
       final SearchContentResultModel? resultModel =
-          await _searchApi.search(chatList.reversed.toList());
+          await _searchApi.search(chatContextList.reversed.toList());
       if (resultModel != null &&
           (resultModel.isSuccess ?? false) &&
           isNotEmptyList(resultModel.value?.choices)) {
