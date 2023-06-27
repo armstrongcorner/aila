@@ -110,6 +110,16 @@ class S {
     );
   }
 
+  /// `Canel`
+  String get cancel {
+    return Intl.message(
+      'Canel',
+      name: 'cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Send`
   String get sendBtnTitle {
     return Intl.message(
@@ -180,6 +190,16 @@ class S {
     );
   }
 
+  /// `Version`
+  String get currentVersionInfo {
+    return Intl.message(
+      'Version',
+      name: 'currentVersionInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Language`
   String get currentLang {
     return Intl.message(
@@ -195,6 +215,46 @@ class S {
     return Intl.message(
       'Chat complete',
       name: 'chatCompleteMark',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm to logout?`
+  String get confirmLogoutTip {
+    return Intl.message(
+      'Confirm to logout?',
+      name: 'confirmLogoutTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear chat`
+  String get clearChatHistory {
+    return Intl.message(
+      'Clear chat',
+      name: 'clearChatHistory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm to clear the current chat history?`
+  String get clearChatConfirmTip {
+    return Intl.message(
+      'Confirm to clear the current chat history?',
+      name: 'clearChatConfirmTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `total chats:`
+  String get totalChatCount {
+    return Intl.message(
+      'total chats:',
+      name: 'totalChatCount',
       desc: '',
       args: [],
     );

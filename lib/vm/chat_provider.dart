@@ -141,4 +141,18 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       AsyncError(e, StackTrace.current);
     }
   }
+
+  Future<void> clearChatHistory() async {
+    try {
+      state = const AsyncValue.loading();
+      await _chatLocalDataSource.deleteChats(
+          username: _sessionManager.getUsername());
+
+      if (mounted) {
+        state = const AsyncData([]);
+      }
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
+  }
 }

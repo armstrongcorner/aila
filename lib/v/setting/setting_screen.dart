@@ -1,15 +1,18 @@
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/log.dart';
 import 'package:aila/core/utils/sp_util.dart';
+import 'package:aila/v/common_widgets/simple_dialog_content.dart';
 import 'package:aila/vm/misc_provider.dart';
-import 'package:aila/vm/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/session_manager.dart';
 import '../../core/use_l10n.dart';
+import '../../vm/chat_provider.dart';
 import '../common_widgets/click_item.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
@@ -19,7 +22,19 @@ class SettingPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appRoute = ref.read(appRouterProvider);
+    final chatListState = ref.watch(chatProvider);
+    final versionNumber = useState('-');
+    final buildNumber = useState('-');
+
+    useEffect(() {
+      PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+        // version number
+        versionNumber.value = packageInfo.version;
+        // build number
+        buildNumber.value = packageInfo.buildNumber;
+      });
+      return () {};
+    }, const []);
 
     return Container(
       color: WSColor.primaryBgColor,
@@ -39,6 +54,7 @@ class SettingPage extends HookConsumerWidget {
             elevation: 0,
             leading: IconButton(
               onPressed: () {
+                final appRoute = ref.read(appRouterProvider);
                 appRoute.pop();
               },
               icon: const Icon(
@@ -54,21 +70,56 @@ class SettingPage extends HookConsumerWidget {
               children: [
                 ListView.builder(
                   shrinkWrap: true,
-                  itemCount: 1,
+                  itemCount: 3,
                   itemBuilder: (context, index) {
-                    return SizedBox(
-                      width: 1.0.sw,
-                      height: 60.h,
-                      child: ClickItem(
-                        title: useL10n(theContext: context).currentLang,
-                        margin: const EdgeInsets.all(0),
-                        padding: const EdgeInsets.only(left: 15, right: 15),
-                        content: SpUtil.getString(SpKeys.SELECTED_LANGUAGE),
-                        bottomBorder: false,
-                        onTap: () => _selectLanguage(context, ref),
-                        overrideBackgroundColor: false,
-                      ),
-                    );
+                    if (index == 0) {
+                      return SizedBox(
+                        width: 1.0.sw,
+                        height: 50.h,
+                        child: ClickItem(
+                          title:
+                              useL10n(theContext: context).currentVersionInfo,
+                          margin: const EdgeInsets.all(0),
+                          padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                          content:
+                              '${versionNumber.value}(${buildNumber.value})',
+                          bottomBorder: false,
+                          // onTap: () => _selectLanguage(context, ref),
+                          overrideBackgroundColor: false,
+                        ),
+                      );
+                    } else if (index == 1) {
+                      return SizedBox(
+                        width: 1.0.sw,
+                        height: 50.h,
+                        child: ClickItem(
+                          title: useL10n(theContext: context).currentLang,
+                          margin: const EdgeInsets.all(0),
+                          padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                          content: SpUtil.getString(SpKeys.SELECTED_LANGUAGE),
+                          bottomBorder: false,
+                          onTap: () => _selectLanguage(context, ref),
+                          overrideBackgroundColor: false,
+                        ),
+                      );
+                    } else if (index == 2) {
+                      return SizedBox(
+                        width: 1.0.sw,
+                        height: 50.h,
+                        child: ClickItem(
+                          title: useL10n(theContext: context).clearChatHistory,
+                          margin: const EdgeInsets.all(0),
+                          padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                          content:
+                              '${useL10n(theContext: context).totalChatCount} ${(chatListState.value ?? []).length}',
+                          bottomBorder: false,
+                          onTap: () => _clearChat(context, ref),
+                          overrideBackgroundColor: false,
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
                   },
                 ),
                 const Spacer(flex: 10),
@@ -77,10 +128,24 @@ class SettingPage extends HookConsumerWidget {
                   height: 40.h,
                   child: WSLoadingButton(
                     onPressed: () async {
-                      final sessionManager = ref.read(sessionManagerProvider);
-                      sessionManager.setToken('');
-                      await SpUtil.putString(SpKeys.TOKEN, '');
-                      appRoute.go(RouteURL.login);
+                      showCustomSizeDialog(
+                        context,
+                        barrierDismissible: true,
+                        child: SimpleDialogContent(
+                          bodyText:
+                              useL10n(theContext: context).confirmLogoutTip,
+                          cancelBtnText: useL10n(theContext: context).cancel,
+                          okBtnText: useL10n(theContext: context).ok,
+                          onClickOK: () async {
+                            final appRoute = ref.read(appRouterProvider);
+                            final sessionManager =
+                                ref.read(sessionManagerProvider);
+                            sessionManager.setToken('');
+                            await SpUtil.putString(SpKeys.TOKEN, '');
+                            appRoute.go(RouteURL.login);
+                          },
+                        ),
+                      );
                     },
                     bgColor: Colors.grey,
                     loading: false,
@@ -178,5 +243,20 @@ class SettingPage extends HookConsumerWidget {
         EasyLoading.dismiss();
       }
     });
+  }
+
+  void _clearChat(BuildContext context, WidgetRef ref) {
+    showCustomSizeDialog(
+      context,
+      barrierDismissible: true,
+      child: SimpleDialogContent(
+        bodyText: useL10n(theContext: context).clearChatConfirmTip,
+        cancelBtnText: useL10n(theContext: context).cancel,
+        okBtnText: useL10n(theContext: context).ok,
+        onClickOK: () async {
+          ref.read(chatProvider.notifier).clearChatHistory();
+        },
+      ),
+    );
   }
 }

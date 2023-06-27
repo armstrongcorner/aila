@@ -1,7 +1,7 @@
 name: aila
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0
+version: 1.0.0+6
 
 environment:
   sdk: '>=3.0.2 <4.0.0'
@@ -19,6 +19,7 @@ dependencies:
   hooks_riverpod: ^2.3.6
   path: ^1.8.3
   dio: ^5.1.2
+  package_info_plus: ^4.0.2
   connectivity_plus: ^4.0.1
   shared_preferences: ^2.1.1
   fluttertoast: ^8.2.2

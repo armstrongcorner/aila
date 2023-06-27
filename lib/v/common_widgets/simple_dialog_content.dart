@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/use_l10n.dart';
@@ -9,10 +10,22 @@ class SimpleDialogContent extends HookConsumerWidget {
   final Icon? topIcon;
   final String? titleText;
   final String? bodyText;
+  final String? cancelBtnText;
+  final Function? onClickCancel;
   final String? okBtnText;
+  final Function? onClickOK;
+  final bool? isOKAndPop;
 
   const SimpleDialogContent(
-      {super.key, this.topIcon, this.titleText, this.bodyText, this.okBtnText});
+      {super.key,
+      this.topIcon,
+      this.titleText,
+      this.bodyText,
+      this.cancelBtnText,
+      this.onClickCancel,
+      this.okBtnText,
+      this.onClickOK,
+      this.isOKAndPop = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +39,7 @@ class SimpleDialogContent extends HookConsumerWidget {
       children: [
         if (topIcon != null) ...[
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.only(bottom: 10.h),
             child: topIcon,
           ),
         ],
@@ -48,18 +61,48 @@ class SimpleDialogContent extends HookConsumerWidget {
         ],
       ],
     );
-    actionWidget = Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child:
-            Text(isEmpty(okBtnText) ? L10n.of(context)!.ok : okBtnText ?? ''),
-      ),
+    actionWidget = Row(
+      mainAxisAlignment: isNotEmpty(cancelBtnText) && isNotEmpty(okBtnText)
+          ? MainAxisAlignment.spaceEvenly
+          : MainAxisAlignment.end,
+      children: [
+        if (isNotEmpty(cancelBtnText)) ...[
+          TextButton(
+            onPressed: () => onClickCancel != null
+                ? onClickCancel!
+                : Navigator.of(context).pop(),
+            child: Center(
+              child: Text(isEmpty(cancelBtnText)
+                  ? L10n.of(context)!.cancel
+                  : cancelBtnText ?? ''),
+            ),
+          ),
+        ],
+        if (isNotEmpty(okBtnText) ||
+            (isEmpty(cancelBtnText) && isEmpty(okBtnText))) ...[
+          TextButton(
+            onPressed: () {
+              if (onClickOK != null) {
+                if (isOKAndPop ?? false) {
+                  Navigator.of(context).pop();
+                }
+                onClickOK!();
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
+            child: Center(
+              child: Text(
+                  isEmpty(okBtnText) ? L10n.of(context)!.ok : okBtnText ?? ''),
+            ),
+          ),
+        ],
+      ],
     );
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      width: screenWidth.value - 100,
+      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 10.h),
+      width: screenWidth.value - 100.w,
       decoration: BoxDecoration(
         color: Theme.of(context).dialogBackgroundColor,
         borderRadius: BorderRadius.circular(25),
@@ -68,9 +111,9 @@ class SimpleDialogContent extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           titleWidget,
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           contentWidget,
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           actionWidget,
         ],
       ),

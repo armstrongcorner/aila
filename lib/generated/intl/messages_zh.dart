@@ -22,9 +22,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "chatCompleteMark": MessageLookupByLibrary.simpleMessage("对话已结束"),
+        "clearChatConfirmTip":
+            MessageLookupByLibrary.simpleMessage("确认清空当前账号会话记录吗？"),
+        "clearChatHistory": MessageLookupByLibrary.simpleMessage("清空会话"),
         "clearContentBtnTitle": MessageLookupByLibrary.simpleMessage("清除搜索结果"),
+        "confirmLogoutTip": MessageLookupByLibrary.simpleMessage("确定退出吗？"),
         "currentLang": MessageLookupByLibrary.simpleMessage("语言"),
+        "currentVersionInfo": MessageLookupByLibrary.simpleMessage("当前版本"),
         "loginBtn": MessageLookupByLibrary.simpleMessage("登录"),
         "logoutBtn": MessageLookupByLibrary.simpleMessage("退出"),
         "mainPage": MessageLookupByLibrary.simpleMessage("首页"),
@@ -35,6 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("请输入"),
         "sendBtnTitle": MessageLookupByLibrary.simpleMessage("发送"),
         "settingPage": MessageLookupByLibrary.simpleMessage("设置"),
+        "totalChatCount": MessageLookupByLibrary.simpleMessage("当前数目:"),
         "username": MessageLookupByLibrary.simpleMessage("用户名"),
         "usernameEmptyErr": MessageLookupByLibrary.simpleMessage("用户名不能为空")
       };

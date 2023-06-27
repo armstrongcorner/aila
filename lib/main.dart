@@ -16,7 +16,9 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
     RendererBinding.instance.ensureSemantics();
 
+    // Init share preference
     await SpUtil.getInstance();
+    // Init local storage (Hive)
     final localStorage = WSLocalStorage();
     await localStorage.init();
 

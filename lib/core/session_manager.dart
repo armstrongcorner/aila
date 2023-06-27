@@ -2,7 +2,6 @@ import 'package:aila/core/utils/sp_util.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final sessionManagerProvider =
-    // Provider<SessionManager>((ref) => throw UnimplementedError());
     Provider<SessionManager>((ref) => SessionManager());
 
 class SessionManager {

@@ -5,6 +5,7 @@
     "searchEmptyErr": "Please type contents",
     "clearContentBtnTitle": "Clear search result",
     "ok": "OK",
+    "cancel": "Canel",
     "sendBtnTitle": "Send",
     "username": "Username",
     "usernameEmptyErr": "Username can not be empty",
@@ -12,6 +13,11 @@
     "passwordEmptyErr": "Password can not be empty",
     "loginBtn": "Login",
     "logoutBtn": "Logout",
+    "currentVersionInfo": "Version",
     "currentLang": "Language",
-    "chatCompleteMark": "Chat complete"
+    "chatCompleteMark": "Chat complete",
+    "confirmLogoutTip": "Confirm to logout?",
+    "clearChatHistory": "Clear chat",
+    "clearChatConfirmTip": "Confirm to clear the current chat history?",
+    "totalChatCount": "total chats:"
 }

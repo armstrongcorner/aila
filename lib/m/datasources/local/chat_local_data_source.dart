@@ -29,6 +29,20 @@ class ChatLocalDataSource {
     }
   }
 
+  Future<void> deleteChats({String? username}) async {
+    final Box<ChatHiveModel> chatBox =
+        await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);
+    if (isNotEmpty(username)) {
+      final tobeDeleteKeys = chatBox.values
+          .where((element) => element.clientUsername == username)
+          .toList()
+          .map((item) => item.key);
+      await chatBox.deleteAll(tobeDeleteKeys);
+    } else {
+      await chatBox.clear();
+    }
+  }
+
   Future<void> addChat(ChatHiveModel chatHiveModel) async {
     final Box<ChatHiveModel> chatBox =
         await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);

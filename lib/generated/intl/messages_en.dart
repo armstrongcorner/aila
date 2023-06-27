@@ -22,11 +22,18 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "cancel": MessageLookupByLibrary.simpleMessage("Canel"),
         "chatCompleteMark":
             MessageLookupByLibrary.simpleMessage("Chat complete"),
+        "clearChatConfirmTip": MessageLookupByLibrary.simpleMessage(
+            "Confirm to clear the current chat history?"),
+        "clearChatHistory": MessageLookupByLibrary.simpleMessage("Clear chat"),
         "clearContentBtnTitle":
             MessageLookupByLibrary.simpleMessage("Clear search result"),
+        "confirmLogoutTip":
+            MessageLookupByLibrary.simpleMessage("Confirm to logout?"),
         "currentLang": MessageLookupByLibrary.simpleMessage("Language"),
+        "currentVersionInfo": MessageLookupByLibrary.simpleMessage("Version"),
         "loginBtn": MessageLookupByLibrary.simpleMessage("Login"),
         "logoutBtn": MessageLookupByLibrary.simpleMessage("Logout"),
         "mainPage": MessageLookupByLibrary.simpleMessage("Main Page"),
@@ -39,6 +46,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("Type here"),
         "sendBtnTitle": MessageLookupByLibrary.simpleMessage("Send"),
         "settingPage": MessageLookupByLibrary.simpleMessage("Setting"),
+        "totalChatCount": MessageLookupByLibrary.simpleMessage("total chats:"),
         "username": MessageLookupByLibrary.simpleMessage("Username"),
         "usernameEmptyErr":
             MessageLookupByLibrary.simpleMessage("Username can not be empty")
