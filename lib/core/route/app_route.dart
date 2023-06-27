@@ -1,10 +1,15 @@
 import 'package:aila/v/splash_screen.dart';
 import 'package:aila/v/user/login_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../app.dart';
 import '../../v/chat/chat_screen.dart';
+import '../../v/common_widgets/toast.dart';
 import '../../v/setting/setting_screen.dart';
+import '../use_l10n.dart';
 import 'navigation_service.dart';
 
 class RouteURL {
@@ -56,13 +61,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // ...alertRoute(),
       // ...preferencesRoute,
     ],
-    // redirect: (BuildContext context, GoRouterState state) async {
-    //   if (tokenExpiredState.value && state.location != LoginRouteUrl.companyCode) {
-    //     tokenExpiredState.value = false;
-    //     return LoginRouteUrl.companyCode;
-    //   }
-    //   return null;
-    // },
-    // refreshListenable: tokenExpiredState,
+    redirect: (BuildContext context, GoRouterState state) async {
+      if (tokenExpiredState.value && state.location != RouteURL.login) {
+        tokenExpiredState.value = false;
+        WSToast.show(useL10n(theContext: context).tokenExpireWarning,
+            gravity: ToastGravity.BOTTOM);
+        return RouteURL.login;
+      }
+      return null;
+    },
+    refreshListenable: tokenExpiredState,
   );
 });

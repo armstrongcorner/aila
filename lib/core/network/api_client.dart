@@ -9,9 +9,10 @@ import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path/path.dart';
 
-import 'constant.dart';
-import 'environment.dart';
-import 'general_exception.dart';
+import '../constant.dart';
+import '../environment.dart';
+import '../general_exception.dart';
+import 'auth_interceptor.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(
       sessionManager: ref.read(sessionManagerProvider),
@@ -29,7 +30,9 @@ class ApiClient {
   ApiClient(
       {required this.sessionManager,
       required this.connectivity,
-      required this.client});
+      required this.client}) {
+    client.interceptors.add(AuthInterceptor(sessionManager: sessionManager));
+  }
 
   Future<void> _checkNetwork() async {
     bool isAvailableNetwork = false;

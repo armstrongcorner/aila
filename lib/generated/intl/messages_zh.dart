@@ -41,6 +41,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("请输入"),
         "sendBtnTitle": MessageLookupByLibrary.simpleMessage("发送"),
         "settingPage": MessageLookupByLibrary.simpleMessage("设置"),
+        "tokenExpireWarning":
+            MessageLookupByLibrary.simpleMessage("当前登录已过期，请重新登录"),
         "totalChatCount": MessageLookupByLibrary.simpleMessage("当前数目:"),
         "username": MessageLookupByLibrary.simpleMessage("用户名"),
         "usernameEmptyErr": MessageLookupByLibrary.simpleMessage("用户名不能为空")

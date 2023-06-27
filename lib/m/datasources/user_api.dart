@@ -1,4 +1,4 @@
-import 'package:aila/core/api_client.dart';
+import 'package:aila/core/network/api_client.dart';
 import 'package:aila/core/constant.dart';
 import 'package:aila/m/user_info_result_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

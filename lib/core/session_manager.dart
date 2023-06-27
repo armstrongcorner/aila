@@ -72,4 +72,9 @@ class SessionManager {
     _username = value;
     await SpUtil.putString(SpKeys.USERNAME, value);
   }
+
+  void logout() async {
+    await setUsername('');
+    await setToken('');
+  }
 }

@@ -19,5 +19,6 @@
     "confirmLogoutTip": "Confirm to logout?",
     "clearChatHistory": "Clear chat",
     "clearChatConfirmTip": "Confirm to clear the current chat history?",
-    "totalChatCount": "total chats:"
+    "totalChatCount": "total chats:",
+    "tokenExpireWarning": "Login expired. Please login again."
 }

@@ -1,6 +1,7 @@
 import 'package:aila/core/utils/sp_util.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../app.dart';
 import '../core/state/request_state_notifier.dart';
 import '../m/auth_result_model.dart';
 import '../m/datasources/user_api.dart';
@@ -20,6 +21,7 @@ class AuthProvider extends RequestStateNotifier<AuthResultModel?> {
       try {
         final AuthResultModel? resultModel =
             await _userApi.login(username, password);
+        tokenExpiredState.value = false;
         return resultModel;
       } catch (e) {
         rethrow;

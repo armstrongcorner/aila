@@ -259,6 +259,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Login expired. Please login again.`
+  String get tokenExpireWarning {
+    return Intl.message(
+      'Login expired. Please login again.',
+      name: 'tokenExpireWarning',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

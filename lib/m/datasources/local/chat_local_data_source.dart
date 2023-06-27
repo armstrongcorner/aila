@@ -49,10 +49,10 @@ class ChatLocalDataSource {
     await chatBox.add(chatHiveModel);
   }
 
-  Future<void> updateChat(int index, ChatHiveModel chatHiveModel) async {
+  Future<void> updateChat(ChatHiveModel chatHiveModel) async {
     final Box<ChatHiveModel> chatBox =
         await storage.openBox<ChatHiveModel>(BOX_NAME_CHAT);
-    await chatBox.putAt(index, chatHiveModel);
+    await chatBox.put(chatHiveModel.key, chatHiveModel);
   }
 
   Future<void> searchChatBy() async {}

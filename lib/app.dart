@@ -9,6 +9,8 @@ import 'core/route/app_route.dart';
 import 'core/use_l10n.dart';
 import 'v/common_widgets/size.dart';
 
+final tokenExpiredState = ValueNotifier<bool>(false);
+
 class App extends HookConsumerWidget {
   const App({super.key});
 

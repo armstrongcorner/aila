@@ -46,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("Type here"),
         "sendBtnTitle": MessageLookupByLibrary.simpleMessage("Send"),
         "settingPage": MessageLookupByLibrary.simpleMessage("Setting"),
+        "tokenExpireWarning": MessageLookupByLibrary.simpleMessage(
+            "Login expired. Please login again."),
         "totalChatCount": MessageLookupByLibrary.simpleMessage("total chats:"),
         "username": MessageLookupByLibrary.simpleMessage("Username"),
         "usernameEmptyErr":

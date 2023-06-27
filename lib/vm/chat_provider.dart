@@ -47,8 +47,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
               // Gap longer than 1 hr (60 mins), mark the last chat item to complete
               item.isCompleteChatFlag = true;
               // Update related Hive item
-              await _chatLocalDataSource.updateChat(
-                  chatHiveList.length - 1, item);
+              await _chatLocalDataSource.updateChat(item);
             }
           }
         }
