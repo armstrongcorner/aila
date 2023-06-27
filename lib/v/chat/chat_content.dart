@@ -99,9 +99,6 @@ class ChatContent extends HookConsumerWidget {
                           //           "static/images/chat_white_arrow.png")),
                           //   margin: EdgeInsets.fromLTRB(2, 16, 0, 0),
                           // ),
-                          // Container(
-                          //   child: Icon(Icons.arrow_left),
-                          // ),
                           Container(
                             decoration: const BoxDecoration(
                                 boxShadow: [
