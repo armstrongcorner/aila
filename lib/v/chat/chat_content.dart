@@ -114,7 +114,7 @@ class ChatContent extends HookConsumerWidget {
                             margin: EdgeInsets.only(top: 5.h, left: 10.w),
                             padding:
                                 EdgeInsets.fromLTRB(10.w, 10.h, 10.w, 10.h),
-                            child: Text(
+                            child: SelectableText(
                               item.content ?? '',
                               style: TextStyle(
                                 color: const Color(0xFF44516B),
@@ -241,9 +241,8 @@ class ChatContent extends HookConsumerWidget {
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 padding: const EdgeInsets.all(10),
-                                child: Text(
+                                child: SelectableText(
                                   item.content ?? '',
-                                  softWrap: true,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 15.sp,
