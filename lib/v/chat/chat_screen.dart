@@ -161,11 +161,12 @@ class ChatPage extends HookConsumerWidget {
 
   void sendUserText(WidgetRef ref, String userText) {
     if (isNotEmpty(userText)) {
+      // Send user typing content first
       final userChat = ChatContextModel(
         role: 'user',
         content: userText,
         createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
-        status: ChatStatus.sending,
+        status: ChatStatus.done,
         isCompleteChatFlag: false,
       );
       ref.read(chatProvider.notifier).addChatAndSend(userChat);

@@ -69,18 +69,27 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
 
   Future<void> addChatAndSend(ChatContextModel chatContextModel) async {
     try {
-      // 1) Show user chat content with sending status
+      // 1) Show user chat content
       List<ChatContextModel> chatList = state.hasValue ? state.value ?? [] : [];
       chatList.insert(0, chatContextModel);
+      final waitGpModel = ChatContextModel(
+        role: 'assistant',
+        content: '',
+        createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
+        status: ChatStatus.waiting,
+        isCompleteChatFlag: false,
+      );
+      chatList.insert(0, waitGpModel);
       state = AsyncData(chatList);
       // 2) Send the chat to API
       // 2-1) Make the chat context (chat list) which would be sent to gpt.
       // It should <= MAX_CHAT_DEPTH and stop at the chat complete flag
       List<ChatContextModel> chatContextList = [];
       for (var i = 0; (i < chatList.length && i < MAX_CHAT_DEPTH); i++) {
-        if (!(chatList[i].isCompleteChatFlag ?? false)) {
+        if (!(chatList[i].isCompleteChatFlag ?? false) &&
+            chatList[i].status != ChatStatus.waiting) {
           chatContextList.add(chatList[i]);
-        } else {
+        } else if (chatList[i].isCompleteChatFlag ?? false) {
           break;
         }
       }
@@ -94,21 +103,17 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       // 2-3) Sent the chat
       final SearchContentResultModel? resultModel =
           await _searchApi.search(chatContextList.reversed.toList());
+      // 3) Show and local cache the search result
+      chatList.removeAt(0); // Remove the gpt waiting chat item
       if (resultModel != null &&
           (resultModel.isSuccess ?? false) &&
           isNotEmptyList(resultModel.value?.choices)) {
-        // 3) Show and local cache the search result
         final theSearchResult = resultModel.value?.choices?[0].message;
-        // 3-1) Change user just sent status to done (sent)
-        chatList.removeAt(0);
-        final sentChatContextModel =
-            chatContextModel.copyWith(status: ChatStatus.done);
-        chatList.insert(0, sentChatContextModel);
-        // 3-2) Local cache the user sent and the search result
-        ChatHiveModel convertedChatHive =
-            ChatHiveModel.fromChat(sentChatContextModel);
-        convertedChatHive.clientUsername = _sessionManager.getUsername();
-        _chatLocalDataSource.addChat(convertedChatHive);
+        // 3-1) Local cache the user sent and the search result
+        ChatHiveModel convertedUserSentHive =
+            ChatHiveModel.fromChat(chatContextModel);
+        convertedUserSentHive.clientUsername = _sessionManager.getUsername();
+        _chatLocalDataSource.addChat(convertedUserSentHive);
         _chatLocalDataSource.addChat(ChatHiveModel(
             id: resultModel.value?.id,
             role: theSearchResult?.role,
@@ -117,7 +122,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
             isSuccess: true,
             isCompleteChatFlag: false,
             clientUsername: _sessionManager.getUsername()));
-        // 3-3) Show the search result
+        // 3-2) Show the search result
         chatList.insert(
             0,
             ChatContextModel(

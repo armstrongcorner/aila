@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 
 import '../../core/use_l10n.dart';
 
@@ -114,13 +115,21 @@ class ChatContent extends HookConsumerWidget {
                             margin: EdgeInsets.only(top: 5.h, left: 10.w),
                             padding:
                                 EdgeInsets.fromLTRB(10.w, 10.h, 10.w, 10.h),
-                            child: SelectableText(
-                              item.content ?? '',
-                              style: TextStyle(
-                                color: const Color(0xFF44516B),
-                                fontSize: 15.sp,
-                              ),
-                            ),
+                            child: item.status == ChatStatus.waiting
+                                ? SizedBox(
+                                    width: 50.w,
+                                    child: JumpingDotsProgressIndicator(
+                                      numberOfDots: 5,
+                                      fontSize: 20.0,
+                                    ),
+                                  )
+                                : SelectableText(
+                                    item.content ?? '',
+                                    style: TextStyle(
+                                      color: const Color(0xFF44516B),
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -252,22 +261,24 @@ class ChatContent extends HookConsumerWidget {
                             ),
                             Container(
                               margin: EdgeInsets.fromLTRB(0, 8.h, 8.w, 0),
-                              child: item.status == ChatStatus.sending
-                                  ? ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                          maxWidth: 20.w, maxHeight: 20.h),
-                                      child: SizedBox(
-                                        width: 15.w,
-                                        height: 15.h,
-                                        child: const CircularProgressIndicator(
-                                          strokeWidth: 2.0,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  Colors.grey),
-                                        ),
-                                      ),
-                                    )
-                                  : item.status == ChatStatus.failure
+                              child:
+                                  // item.status == ChatStatus.sending
+                                  //     ? ConstrainedBox(
+                                  //         constraints: BoxConstraints(
+                                  //             maxWidth: 20.w, maxHeight: 20.h),
+                                  //         child: SizedBox(
+                                  //           width: 15.w,
+                                  //           height: 15.h,
+                                  //           child: const CircularProgressIndicator(
+                                  //             strokeWidth: 2.0,
+                                  //             valueColor:
+                                  //                 AlwaysStoppedAnimation<Color>(
+                                  //                     Colors.grey),
+                                  //           ),
+                                  //         ),
+                                  //       )
+                                  //     :
+                                  item.status == ChatStatus.failure
                                       ? Icon(
                                           Icons.error,
                                           size: 20.sp,

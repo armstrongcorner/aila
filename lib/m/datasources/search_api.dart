@@ -17,7 +17,6 @@ class SearchApi {
     var res = await apiClient.post(
       '/chat/kratos/dese',
       {
-        'GptEngine': 'gpt-3.5-turbo',
         'Messages': chatList.map((e) {
           var chatMap = e.toJson();
           chatMap.remove('id');
