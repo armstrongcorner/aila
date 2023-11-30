@@ -21,8 +21,8 @@ const int NETWORK_TIMEOUT = 120;
 const String DEV_URL = 'https://intensivechatdev.azurewebsites.net/api';
 const String PROD_URL = 'https://intensivechatdev.azurewebsites.net/api';
 
-const String USER_URL = 'https://intensiveidentitydev.azurewebsites.net/api';
-const String CHAT_URL = 'https://intensivechatdev.azurewebsites.net/api';
+const String USER_URL = 'https://intensivecredentialdev.azurewebsites.net/api';
+const String CHAT_URL = 'https://intensiveconversedev.azurewebsites.net/api';
 
 /*
  * Network error code

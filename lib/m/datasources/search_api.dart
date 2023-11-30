@@ -15,7 +15,7 @@ class SearchApi {
   Future<SearchContentResultModel?> search(
       List<ChatContextModel> chatList) async {
     var res = await apiClient.post(
-      '/chat/kratos/dese',
+      '/chat/balance/dese',
       {
         'Messages': chatList.map((e) {
           var chatMap = e.toJson();
