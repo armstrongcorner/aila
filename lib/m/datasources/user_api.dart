@@ -36,4 +36,23 @@ class UserApi {
     var userInfoResultModel = UserInfoResultModel.fromJson(res);
     return userInfoResultModel;
   }
+
+  Future<UserInfoResultModel?> register(UserInfoModel? newUser) async {
+    var res = await apiClient.post(
+      '/identity/user/create',
+      {
+        'username': newUser?.username ?? '',
+        'role': newUser?.role ?? '',
+        'password': newUser?.passwordEncrypted ??
+            '', // Not encrypted for now, will implement later
+        'mobile': newUser?.mobile ?? '',
+        'email': newUser?.email ?? '',
+        'tokenDurationInMin': newUser?.tokenDurationInMin ?? 0,
+        'isActive': newUser?.isActive ?? true,
+      },
+      myBaseUrl: USER_URL,
+    );
+    var userInfoResultModel = UserInfoResultModel.fromJson(res);
+    return userInfoResultModel;
+  }
 }

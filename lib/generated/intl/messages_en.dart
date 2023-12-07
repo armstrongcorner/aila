@@ -41,6 +41,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "password": MessageLookupByLibrary.simpleMessage("Password"),
         "passwordEmptyErr":
             MessageLookupByLibrary.simpleMessage("Password can not be empty"),
+        "registerEntryBtn":
+            MessageLookupByLibrary.simpleMessage("No account? Go to register"),
         "searchEmptyErr":
             MessageLookupByLibrary.simpleMessage("Please type contents"),
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("Type here"),

@@ -9,12 +9,14 @@ import '../../app.dart';
 import '../../v/chat/chat_screen.dart';
 import '../../v/common_widgets/toast.dart';
 import '../../v/setting/setting_screen.dart';
+import '../../v/user/register_screen.dart';
 import '../use_l10n.dart';
 import 'navigation_service.dart';
 
 class RouteURL {
   static const String splash = '/';
   static const String login = '/login';
+  static const String register = '/register';
   static const String chat = '/chat';
   static const String setting = '/setting';
   static const String url = '/url';
@@ -34,6 +36,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteURL.login,
         builder: (context, state) {
           return const LoginPage();
+        },
+      ),
+      GoRoute(
+        path: RouteURL.register,
+        builder: (context, state) {
+          return const RegisterPage();
         },
       ),
       GoRoute(

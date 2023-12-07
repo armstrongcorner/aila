@@ -37,6 +37,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
         "password": MessageLookupByLibrary.simpleMessage("密码"),
         "passwordEmptyErr": MessageLookupByLibrary.simpleMessage("密码不能为空"),
+        "registerEntryBtn":
+            MessageLookupByLibrary.simpleMessage("还没有账号？去注册一个吧"),
         "searchEmptyErr": MessageLookupByLibrary.simpleMessage("请输入交谈内容"),
         "searchPlaceholder": MessageLookupByLibrary.simpleMessage("请输入"),
         "sendBtnTitle": MessageLookupByLibrary.simpleMessage("发送"),

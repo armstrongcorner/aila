@@ -12,7 +12,6 @@ class LoginPage extends HookConsumerWidget {
     return Container(
       color: WSColor.primaryBgColor,
       child: const SafeArea(
-        top: false,
         left: false,
         right: false,
         child: Scaffold(

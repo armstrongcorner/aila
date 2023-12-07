@@ -190,6 +190,16 @@ class S {
     );
   }
 
+  /// `No account? Go to register`
+  String get registerEntryBtn {
+    return Intl.message(
+      'No account? Go to register',
+      name: 'registerEntryBtn',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Version`
   String get currentVersionInfo {
     return Intl.message(

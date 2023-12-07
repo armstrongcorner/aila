@@ -1,6 +1,7 @@
 import 'package:aila/core/general_exception.dart';
 import 'package:aila/core/session_manager.dart';
 import 'package:aila/core/use_l10n.dart';
+import 'package:aila/v/common_widgets/color.dart';
 import 'package:aila/v/common_widgets/loading_button.dart';
 import 'package:aila/v/common_widgets/toast.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,6 @@ class LoginForm extends HookConsumerWidget {
     final usernameController = useTextEditingController(text: 'withouthammer');
     final passwordController = useTextEditingController(text: 'withouthammer');
 
-    // useEffect(() {
-    //   usernameNode.requestFocus();
-    //   return () {};
-    // }, []);
-
     final RequestState<AuthResultModel?> loginState = ref.watch(authProvider);
     final loading =
         loginState == const RequestState<AuthResultModel?>.loading();
@@ -40,7 +36,16 @@ class LoginForm extends HookConsumerWidget {
           height: 1.0.sh,
           child: Column(
             children: [
-              const Spacer(flex: 10),
+              const Spacer(flex: 2),
+              Align(
+                alignment: Alignment.center,
+                child: Image.asset(
+                  'assets/images/sidu_logo.png',
+                  width: 0.6.sw,
+                  height: 0.6.sw,
+                ),
+              ),
+              const Spacer(flex: 3),
               // 1）Username
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -117,6 +122,22 @@ class LoginForm extends HookConsumerWidget {
                     await checkForm(
                         context, ref, usernameController, passwordController);
                   },
+                ),
+              ),
+              SizedBox(height: 15.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: TextButton(
+                  onPressed: () {
+                    final appRouter = ref.read(appRouterProvider);
+                    appRouter.push(RouteURL.register);
+                  },
+                  child: Text(
+                    useL10n(theContext: context).registerEntryBtn,
+                    style: const TextStyle(
+                      color: WSColor.primaryFontColor,
+                    ),
+                  ),
                 ),
               ),
               const Spacer(flex: 2),

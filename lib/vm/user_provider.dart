@@ -52,6 +52,20 @@ class UserProvider extends RequestStateNotifier<UserInfoResultModel?> {
     });
     return res;
   }
+
+  Future<RequestState<UserInfoResultModel?>> register(
+      String username, String password) async {
+    final RequestState<UserInfoResultModel?> res = await makeRequest(() async {
+      try {
+        final UserInfoResultModel? resultModel =
+            await _userApi.getUserInfo(username);
+        return resultModel;
+      } catch (e) {
+        rethrow;
+      }
+    });
+    return res;
+  }
 }
 
 final logoutProvider = FutureProvider.autoDispose((ref) async {

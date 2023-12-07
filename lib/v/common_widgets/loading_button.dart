@@ -13,7 +13,7 @@ class WSLoadingButton extends StatelessWidget {
       {super.key,
       required this.onPressed,
       this.enable = true,
-      this.bgColor = WSColor.gptColor,
+      this.bgColor = WSColor.primaryFontColor, //WSColor.gptColor,
       required this.loading,
       required this.child});
 
