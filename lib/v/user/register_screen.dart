@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/general_exception.dart';
 import '../../core/route/app_route.dart';
 import '../../core/state/request_state_notifier.dart';
 import '../../core/use_l10n.dart';
@@ -11,6 +12,7 @@ import '../../m/user_info_result_model.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
+import '../common_widgets/toast.dart';
 
 class RegisterPage extends HookConsumerWidget {
   const RegisterPage({super.key});
@@ -19,6 +21,8 @@ class RegisterPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final usernameNode = useFocusNode();
     final usernameController = useTextEditingController();
+    final lastUsername = useState('');
+    final checkingUserExisting = useState(false);
     final isDisplayClearUsernameBtn =
         useState(isNotEmpty(usernameController.text));
     final passwordController = useTextEditingController();
@@ -30,7 +34,16 @@ class RegisterPage extends HookConsumerWidget {
 
     useEffect(() {
       usernameNode.requestFocus();
-      return () {};
+      usernameNode.addListener(() {
+        checkAccountAvailable(ref, usernameNode, usernameController,
+            lastUsername, checkingUserExisting);
+      });
+      return () {
+        usernameNode.removeListener(() {
+          checkAccountAvailable(ref, usernameNode, usernameController,
+              lastUsername, checkingUserExisting);
+        });
+      };
     }, []);
 
     final RequestState<UserInfoResultModel?> registerState =
@@ -87,7 +100,8 @@ class RegisterPage extends HookConsumerWidget {
                       },
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText: useL10n(theContext: context).username,
+                        labelText:
+                            useL10n(theContext: context).usernameOrMobile,
                         labelStyle: const TextStyle(color: Colors.grey),
                         border: InputBorder.none,
                         prefixIcon: const Padding(
@@ -97,7 +111,9 @@ class RegisterPage extends HookConsumerWidget {
                             color: Colors.black,
                           ),
                         ),
-                        suffixIcon: isDisplayClearUsernameBtn.value && !loading
+                        suffixIcon: isDisplayClearUsernameBtn.value &&
+                                !loading &&
+                                !checkingUserExisting.value
                             ? IconButton(
                                 onPressed: () {
                                   usernameController.clear();
@@ -109,7 +125,7 @@ class RegisterPage extends HookConsumerWidget {
                                   color: Colors.grey,
                                 ),
                               )
-                            : loading
+                            : loading && checkingUserExisting.value
                                 ? const CircularProgressIndicator.adaptive()
                                 : null,
                         contentPadding:
@@ -222,7 +238,7 @@ class RegisterPage extends HookConsumerWidget {
                         await checkForm(context, ref, usernameController,
                             passwordController, confirmController);
                       },
-                      loading: loading,
+                      loading: loading && !checkingUserExisting.value,
                       child: Center(
                           child: Text(
                         useL10n(theContext: context).registerBtn,
@@ -244,12 +260,74 @@ class RegisterPage extends HookConsumerWidget {
     );
   }
 
+  Future<void> checkAccountAvailable(
+      WidgetRef ref,
+      FocusNode usernameNode,
+      TextEditingController usernameController,
+      ValueNotifier lastUsername,
+      ValueNotifier checkingUserExisting) async {
+    if (!usernameNode.hasFocus) {
+      if (lastUsername.value != usernameController.text &&
+          isNotEmpty(usernameController.text)) {
+        checkingUserExisting.value = true;
+        final res = await ref
+            .read(userProvider.notifier)
+            .getUserInfo(usernameController.text);
+        res.when(
+          idle: () {},
+          loading: () {},
+          success: (UserInfoResultModel? userInfo) {
+            if ((userInfo?.isSuccess ?? false) && userInfo?.value != null) {
+              WSToast.show(useL10n(theContext: ref.context).userExistedErr);
+            }
+          },
+          error: (Object error, StackTrace stackTrace) {
+            FocusManager.instance.primaryFocus?.unfocus();
+            handleException(
+                GeneralException.toGeneralException(error as Exception));
+          },
+        );
+        checkingUserExisting.value = false;
+      }
+      lastUsername.value = usernameController.text;
+    }
+  }
+
   Future<void> checkForm(
       BuildContext context,
       WidgetRef ref,
       TextEditingController usernameController,
       TextEditingController passwordController,
       TextEditingController confirmController) async {
-    print('aaa');
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (passwordController.text == confirmController.text) {
+      // Register
+      final res = await ref
+          .read(userProvider.notifier)
+          .register(usernameController.text, passwordController.text);
+      res.when(
+        idle: () {},
+        loading: () {},
+        success: (UserInfoResultModel? userInfo) {
+          if ((userInfo?.isSuccess ?? false) && userInfo?.value != null) {
+            final appRoute = ref.read(appRouterProvider);
+            appRoute.pop();
+          } else if (!(userInfo?.isSuccess ?? false) &&
+              isNotEmpty(userInfo?.failureReason)) {
+            WSToast.show(userInfo?.failureReason ?? '');
+          } else {
+            WSToast.show(useL10n(theContext: ref.context).registerFailure);
+          }
+        },
+        error: (Object error, StackTrace stackTrace) {
+          FocusManager.instance.primaryFocus?.unfocus();
+          handleException(
+              GeneralException.toGeneralException(error as Exception));
+        },
+      );
+    } else {
+      // password not same
+      WSToast.show(useL10n(theContext: ref.context).passwordNotSameErr);
+    }
   }
 }

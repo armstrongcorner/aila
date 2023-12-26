@@ -25,13 +25,15 @@ class UserApi {
     return authResultModel;
   }
 
-  Future<UserInfoResultModel?> getUserInfo(String username) async {
+  Future<UserInfoResultModel?> getUserInfo(String username,
+      {Map<String, String>? headers}) async {
     var res = await apiClient.get(
       '/identity/user',
       myBaseUrl: USER_URL,
       queryParams: {
         'username': username,
       },
+      headers: headers,
     );
     var userInfoResultModel = UserInfoResultModel.fromJson(res);
     return userInfoResultModel;

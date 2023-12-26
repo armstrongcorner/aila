@@ -21,10 +21,10 @@ class LoginForm extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final usernameNode = useFocusNode();
+    // final usernameNode = useFocusNode();
     // final passwordNode = useFocusNode();
-    final usernameController = useTextEditingController(text: 'withouthammer');
-    final passwordController = useTextEditingController(text: 'withouthammer');
+    final usernameController = useTextEditingController();
+    final passwordController = useTextEditingController();
 
     final RequestState<AuthResultModel?> loginState = ref.watch(authProvider);
     final loading =
@@ -57,7 +57,7 @@ class LoginForm extends HookConsumerWidget {
                   readOnly: loading,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: useL10n(theContext: context).username,
+                    labelText: useL10n(theContext: context).usernameOrMobile,
                     labelStyle: const TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     prefixIcon: const Padding(

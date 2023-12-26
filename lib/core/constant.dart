@@ -34,6 +34,11 @@ const String CODE_INVALI_OPERATION = '400';
 const String CODE_NETWORK_TIMEOUT = '504';
 
 /*
+ * User settings
+ */
+const int USER_DEFAULT_TOKEN_DURATION_IN_MIN = 60 * 24 * 10;
+const String USER_DEFAULT_ROLE = 'User';
+/*
  * Chat settings
  */
 const int CHAT_COMPLETE_GAP_IN_MINUTES = 60;

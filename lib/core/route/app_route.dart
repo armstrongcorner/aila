@@ -70,7 +70,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // ...preferencesRoute,
     ],
     redirect: (BuildContext context, GoRouterState state) async {
-      if (tokenExpiredState.value && state.location != RouteURL.login) {
+      if (tokenExpiredState.value &&
+          state.location != RouteURL.login &&
+          state.location != RouteURL.register) {
         tokenExpiredState.value = false;
         WSToast.show(useL10n(theContext: context).tokenExpireWarning,
             gravity: ToastGravity.BOTTOM);
