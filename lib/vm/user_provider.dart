@@ -30,6 +30,50 @@ class AuthProvider extends RequestStateNotifier<AuthResultModel?> {
     });
     return res;
   }
+
+  Future<RequestState<AuthResultModel?>> register(
+      String username, String password) async {
+    final RequestState<AuthResultModel?> res = await makeRequest(() async {
+      try {
+        final newUser = UserInfoModel(
+          username: username,
+          passwordEncrypted: password,
+          role: USER_DEFAULT_ROLE,
+          tokenDurationInMin: USER_DEFAULT_TOKEN_DURATION_IN_MIN,
+          isActive: true,
+        );
+        final AuthResultModel? resultModel = await _userApi.register(newUser);
+        return resultModel;
+      } catch (e) {
+        rethrow;
+      }
+    });
+    return res;
+  }
+}
+
+final checkUserProvider =
+    StateNotifierProvider<CheckUserProvider, AsyncValue<bool?>>(
+        (ref) => CheckUserProvider(ref.read(userApiProvider)));
+
+class CheckUserProvider extends StateNotifier<AsyncValue<bool?>> {
+  CheckUserProvider(this._userApi) : super(const AsyncData(null));
+  final UserApi _userApi;
+
+  Future<void> checkUserCanRegister(String username) async {
+    try {
+      state = const AsyncValue.loading();
+      final userExistResultModel = await _userApi.checkUserExist(username);
+      if (userExistResultModel != null &&
+          (userExistResultModel.isSuccess ?? false)) {
+        if (mounted) {
+          state = AsyncData(!(userExistResultModel.value ?? false));
+        }
+      }
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
+  }
 }
 
 final userProvider =
@@ -44,34 +88,8 @@ class UserProvider extends RequestStateNotifier<UserInfoResultModel?> {
       String username) async {
     final RequestState<UserInfoResultModel?> res = await makeRequest(() async {
       try {
-        final UserInfoResultModel? resultModel = await _userApi.getUserInfo(
-          username,
-          headers: {
-            'Authorization':
-                'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoid2l0aG91dGhhbW1lciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlJvbGUiLCJleHAiOjE3MDUzNTc0OTAsImlzcyI6Imh0dHA6Ly93d3cubWF0cml4dGhvdWdodHMuY29tIiwiYXVkIjoiaHR0cDovL3d3dy5tYXRyaXh0aG91Z2h0cy5jb20ifQ.auxv6k_MXpk-HIvWrjsJ7IIL5kUqsHieEmRR-c5Ylyw'
-          },
-        );
-        return resultModel;
-      } catch (e) {
-        rethrow;
-      }
-    });
-    return res;
-  }
-
-  Future<RequestState<UserInfoResultModel?>> register(
-      String username, String password) async {
-    final RequestState<UserInfoResultModel?> res = await makeRequest(() async {
-      try {
-        final newUser = UserInfoModel(
-          username: username,
-          passwordEncrypted: password,
-          role: USER_DEFAULT_ROLE,
-          tokenDurationInMin: USER_DEFAULT_TOKEN_DURATION_IN_MIN,
-          isActive: true,
-        );
         final UserInfoResultModel? resultModel =
-            await _userApi.register(newUser);
+            await _userApi.getUserInfo(username);
         return resultModel;
       } catch (e) {
         rethrow;

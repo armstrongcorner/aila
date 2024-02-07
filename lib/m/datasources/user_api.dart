@@ -1,5 +1,6 @@
 import 'package:aila/core/network/api_client.dart';
 import 'package:aila/core/constant.dart';
+import 'package:aila/m/user_exist_result_model.dart';
 import 'package:aila/m/user_info_result_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -39,7 +40,21 @@ class UserApi {
     return userInfoResultModel;
   }
 
-  Future<UserInfoResultModel?> register(UserInfoModel? newUser) async {
+  Future<UserExistResultModel?> checkUserExist(String username,
+      {Map<String, String>? headers}) async {
+    var res = await apiClient.get(
+      '/identity/user/exist',
+      myBaseUrl: USER_URL,
+      queryParams: {
+        'username': username,
+      },
+      headers: headers,
+    );
+    var userExistResultModel = UserExistResultModel.fromJson(res);
+    return userExistResultModel;
+  }
+
+  Future<AuthResultModel?> register(UserInfoModel? newUser) async {
     var res = await apiClient.post(
       '/identity/user/create',
       {
@@ -54,7 +69,7 @@ class UserApi {
       },
       myBaseUrl: USER_URL,
     );
-    var userInfoResultModel = UserInfoResultModel.fromJson(res);
-    return userInfoResultModel;
+    var authResultModel = AuthResultModel.fromJson(res);
+    return authResultModel;
   }
 }

@@ -5,10 +5,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/general_exception.dart';
 import '../../core/route/app_route.dart';
+import '../../core/session_manager.dart';
 import '../../core/state/request_state_notifier.dart';
 import '../../core/use_l10n.dart';
 import '../../core/utils/string_util.dart';
-import '../../m/user_info_result_model.dart';
+import '../../m/auth_result_model.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
@@ -22,7 +23,6 @@ class RegisterPage extends HookConsumerWidget {
     final usernameNode = useFocusNode();
     final usernameController = useTextEditingController();
     final lastUsername = useState('');
-    final checkingUserExisting = useState(false);
     final isDisplayClearUsernameBtn =
         useState(isNotEmpty(usernameController.text));
     final passwordController = useTextEditingController();
@@ -32,24 +32,24 @@ class RegisterPage extends HookConsumerWidget {
     final isDisplayClearConfirmBtn =
         useState(isNotEmpty(confirmController.text));
 
+    final checkUserState = ref.watch(checkUserProvider);
+    final RequestState<AuthResultModel?> authState = ref.watch(authProvider);
+    final authloading =
+        authState == const RequestState<AuthResultModel?>.loading();
+
     useEffect(() {
       usernameNode.requestFocus();
       usernameNode.addListener(() {
         checkAccountAvailable(ref, usernameNode, usernameController,
-            lastUsername, checkingUserExisting);
+            lastUsername, checkUserState);
       });
       return () {
         usernameNode.removeListener(() {
           checkAccountAvailable(ref, usernameNode, usernameController,
-              lastUsername, checkingUserExisting);
+              lastUsername, checkUserState);
         });
       };
     }, []);
-
-    final RequestState<UserInfoResultModel?> registerState =
-        ref.watch(userProvider);
-    final loading =
-        registerState == const RequestState<UserInfoResultModel?>.loading();
 
     return Container(
       color: WSColor.primaryBgColor,
@@ -93,7 +93,7 @@ class RegisterPage extends HookConsumerWidget {
                       focusNode: usernameNode,
                       enableSuggestions: false,
                       autocorrect: false,
-                      readOnly: loading,
+                      readOnly: checkUserState.isLoading || authloading,
                       onChanged: (value) {
                         isDisplayClearUsernameBtn.value =
                             isNotEmpty(usernameController.text);
@@ -112,8 +112,8 @@ class RegisterPage extends HookConsumerWidget {
                           ),
                         ),
                         suffixIcon: isDisplayClearUsernameBtn.value &&
-                                !loading &&
-                                !checkingUserExisting.value
+                                !checkUserState.isLoading &&
+                                !authloading
                             ? IconButton(
                                 onPressed: () {
                                   usernameController.clear();
@@ -125,7 +125,7 @@ class RegisterPage extends HookConsumerWidget {
                                   color: Colors.grey,
                                 ),
                               )
-                            : loading && checkingUserExisting.value
+                            : checkUserState.isLoading
                                 ? const CircularProgressIndicator.adaptive()
                                 : null,
                         contentPadding:
@@ -147,7 +147,7 @@ class RegisterPage extends HookConsumerWidget {
                       // focusNode: passwordNode,
                       textInputAction: TextInputAction.next,
                       obscureText: true,
-                      readOnly: loading,
+                      readOnly: checkUserState.isLoading || authloading,
                       onChanged: (value) {
                         isDisplayClearPasswordBtn.value =
                             isNotEmpty(passwordController.text);
@@ -163,7 +163,9 @@ class RegisterPage extends HookConsumerWidget {
                             color: Colors.black,
                           ),
                         ),
-                        suffixIcon: isDisplayClearPasswordBtn.value && !loading
+                        suffixIcon: isDisplayClearPasswordBtn.value &&
+                                !checkUserState.isLoading &&
+                                !authloading
                             ? IconButton(
                                 onPressed: () {
                                   passwordController.clear();
@@ -190,7 +192,7 @@ class RegisterPage extends HookConsumerWidget {
                       // focusNode: passwordNode,
                       textInputAction: TextInputAction.done,
                       obscureText: true,
-                      readOnly: loading,
+                      readOnly: checkUserState.isLoading || authloading,
                       onChanged: (value) {
                         isDisplayClearConfirmBtn.value =
                             isNotEmpty(confirmController.text);
@@ -206,7 +208,9 @@ class RegisterPage extends HookConsumerWidget {
                             color: Colors.black,
                           ),
                         ),
-                        suffixIcon: isDisplayClearConfirmBtn.value && !loading
+                        suffixIcon: isDisplayClearConfirmBtn.value &&
+                                !checkUserState.isLoading &&
+                                !authloading
                             ? IconButton(
                                 onPressed: () {
                                   confirmController.clear();
@@ -238,7 +242,7 @@ class RegisterPage extends HookConsumerWidget {
                         await checkForm(context, ref, usernameController,
                             passwordController, confirmController);
                       },
-                      loading: loading && !checkingUserExisting.value,
+                      loading: checkUserState.isLoading || authloading,
                       child: Center(
                           child: Text(
                         useL10n(theContext: context).registerBtn,
@@ -265,29 +269,28 @@ class RegisterPage extends HookConsumerWidget {
       FocusNode usernameNode,
       TextEditingController usernameController,
       ValueNotifier lastUsername,
-      ValueNotifier checkingUserExisting) async {
+      AsyncValue<bool?> checkUserState) async {
     if (!usernameNode.hasFocus) {
       if (lastUsername.value != usernameController.text &&
           isNotEmpty(usernameController.text)) {
-        checkingUserExisting.value = true;
-        final res = await ref
-            .read(userProvider.notifier)
-            .getUserInfo(usernameController.text);
-        res.when(
-          idle: () {},
+        await ref
+            .read(checkUserProvider.notifier)
+            .checkUserCanRegister(usernameController.text);
+        checkUserState.when(
           loading: () {},
-          success: (UserInfoResultModel? userInfo) {
-            if ((userInfo?.isSuccess ?? false) && userInfo?.value != null) {
+          data: (canRegister) {
+            if (canRegister == null) {
+              WSToast.show('aaaaaa');
+            } else if (!canRegister) {
               WSToast.show(useL10n(theContext: ref.context).userExistedErr);
             }
           },
-          error: (Object error, StackTrace stackTrace) {
+          error: (e, _) {
             FocusManager.instance.primaryFocus?.unfocus();
             handleException(
-                GeneralException.toGeneralException(error as Exception));
+                GeneralException.toGeneralException(e as Exception));
           },
         );
-        checkingUserExisting.value = false;
       }
       lastUsername.value = usernameController.text;
     }
@@ -303,18 +306,24 @@ class RegisterPage extends HookConsumerWidget {
     if (passwordController.text == confirmController.text) {
       // Register
       final res = await ref
-          .read(userProvider.notifier)
+          .read(authProvider.notifier)
           .register(usernameController.text, passwordController.text);
       res.when(
         idle: () {},
         loading: () {},
-        success: (UserInfoResultModel? userInfo) {
-          if ((userInfo?.isSuccess ?? false) && userInfo?.value != null) {
+        success: (AuthResultModel? auth) {
+          if ((auth?.isSuccess ?? false) &&
+              auth?.value != null &&
+              isNotEmpty(auth?.value?.token)) {
+            SessionManager sessionManager = ref.read(sessionManagerProvider);
+            sessionManager.setToken(auth?.value?.token ?? '');
+            sessionManager.setUsername(usernameController.text.trim());
+
             final appRoute = ref.read(appRouterProvider);
-            appRoute.pop();
-          } else if (!(userInfo?.isSuccess ?? false) &&
-              isNotEmpty(userInfo?.failureReason)) {
-            WSToast.show(userInfo?.failureReason ?? '');
+            appRoute.go(RouteURL.chat);
+          } else if (!(auth?.isSuccess ?? false) &&
+              isNotEmpty(auth?.failureReason)) {
+            WSToast.show(auth?.failureReason ?? '');
           } else {
             WSToast.show(useL10n(theContext: ref.context).registerFailure);
           }
