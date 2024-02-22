@@ -1,3 +1,4 @@
+import 'package:aila/v/common_widgets/common_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,13 +27,21 @@ class RegisterPage extends HookConsumerWidget {
     final isDisplayClearUsernameBtn =
         useState(isNotEmpty(usernameController.text));
     final passwordController = useTextEditingController();
-    final isDisplayClearPasswordBtn =
-        useState(isNotEmpty(passwordController.text));
     final confirmController = useTextEditingController();
-    final isDisplayClearConfirmBtn =
-        useState(isNotEmpty(confirmController.text));
 
     final checkUserState = ref.watch(checkUserProvider);
+    checkUserState.when(
+      loading: () {},
+      data: (canRegister) {
+        if (canRegister != null && !canRegister) {
+          WSToast.show(useL10n(theContext: ref.context).userExistedErr);
+        }
+      },
+      error: (e, _) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        handleException(GeneralException.toGeneralException(e as Exception));
+      },
+    );
     final RequestState<AuthResultModel?> authState = ref.watch(authProvider);
     final authloading =
         authState == const RequestState<AuthResultModel?>.loading();
@@ -40,13 +49,13 @@ class RegisterPage extends HookConsumerWidget {
     useEffect(() {
       usernameNode.requestFocus();
       usernameNode.addListener(() {
-        checkAccountAvailable(ref, usernameNode, usernameController,
-            lastUsername, checkUserState);
+        checkAccountAvailable(
+            ref, usernameNode, usernameController, lastUsername);
       });
       return () {
         usernameNode.removeListener(() {
-          checkAccountAvailable(ref, usernameNode, usernameController,
-              lastUsername, checkUserState);
+          checkAccountAvailable(
+              ref, usernameNode, usernameController, lastUsername);
         });
       };
     }, []);
@@ -131,106 +140,40 @@ class RegisterPage extends HookConsumerWidget {
                         contentPadding:
                             EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
                       ),
-                      onFieldSubmitted: (_) async {
-                        // await checkForm(
-                        //     context, ref, usernameController, passwordController);
-                        print('aaa');
-                      },
                     ),
                   ),
                   // 2) Password
                   SizedBox(height: 15.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: TextFormField(
-                      controller: passwordController,
-                      // focusNode: passwordNode,
-                      textInputAction: TextInputAction.next,
-                      obscureText: true,
-                      readOnly: checkUserState.isLoading || authloading,
-                      onChanged: (value) {
-                        isDisplayClearPasswordBtn.value =
-                            isNotEmpty(passwordController.text);
-                      },
-                      decoration: InputDecoration(
-                        labelText: useL10n(theContext: context).password,
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        border: InputBorder.none,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(left: 10.w, right: 10.h),
-                          child: const Icon(
-                            Icons.lock_outline,
-                            color: Colors.black,
-                          ),
-                        ),
-                        suffixIcon: isDisplayClearPasswordBtn.value &&
-                                !checkUserState.isLoading &&
-                                !authloading
-                            ? IconButton(
-                                onPressed: () {
-                                  passwordController.clear();
-                                  isDisplayClearPasswordBtn.value =
-                                      isNotEmpty(passwordController.text);
-                                },
-                                icon: const Icon(
-                                  Icons.highlight_off,
-                                  color: Colors.grey,
-                                ),
-                              )
-                            : null,
-                        contentPadding:
-                            EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
-                      ),
+                  CommonTextfield(
+                    textController: passwordController,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.black,
                     ),
+                    clearBtnIcon: const Icon(
+                      Icons.highlight_off,
+                      color: Colors.grey,
+                    ),
+                    placeholderStr: useL10n(theContext: context).password,
+                    isPasswordMask: true,
+                    readOnly: checkUserState.isLoading || authloading,
                   ),
                   // 3) Confirm password
                   SizedBox(height: 15.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: TextFormField(
-                      controller: confirmController,
-                      // focusNode: passwordNode,
-                      textInputAction: TextInputAction.done,
-                      obscureText: true,
-                      readOnly: checkUserState.isLoading || authloading,
-                      onChanged: (value) {
-                        isDisplayClearConfirmBtn.value =
-                            isNotEmpty(confirmController.text);
-                      },
-                      decoration: InputDecoration(
-                        labelText: useL10n(theContext: context).confirmPassword,
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        border: InputBorder.none,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(left: 10.w, right: 10.h),
-                          child: const Icon(
-                            Icons.verified,
-                            color: Colors.black,
-                          ),
-                        ),
-                        suffixIcon: isDisplayClearConfirmBtn.value &&
-                                !checkUserState.isLoading &&
-                                !authloading
-                            ? IconButton(
-                                onPressed: () {
-                                  confirmController.clear();
-                                  isDisplayClearConfirmBtn.value =
-                                      isNotEmpty(confirmController.text);
-                                },
-                                icon: const Icon(
-                                  Icons.highlight_off,
-                                  color: Colors.grey,
-                                ),
-                              )
-                            : null,
-                        contentPadding:
-                            EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
-                      ),
-                      onFieldSubmitted: (_) async {
-                        await checkForm(context, ref, usernameController,
-                            passwordController, confirmController);
-                      },
+                  CommonTextfield(
+                    textController: confirmController,
+                    prefixIcon: const Icon(
+                      Icons.verified,
+                      color: Colors.black,
                     ),
+                    clearBtnIcon: const Icon(
+                      Icons.highlight_off,
+                      color: Colors.grey,
+                    ),
+                    placeholderStr:
+                        useL10n(theContext: context).confirmPassword,
+                    isPasswordMask: true,
+                    readOnly: checkUserState.isLoading || authloading,
                   ),
                   SizedBox(height: 15.h),
                   const Spacer(flex: 2),
@@ -268,29 +211,13 @@ class RegisterPage extends HookConsumerWidget {
       WidgetRef ref,
       FocusNode usernameNode,
       TextEditingController usernameController,
-      ValueNotifier lastUsername,
-      AsyncValue<bool?> checkUserState) async {
+      ValueNotifier lastUsername) async {
     if (!usernameNode.hasFocus) {
       if (lastUsername.value != usernameController.text &&
           isNotEmpty(usernameController.text)) {
         await ref
             .read(checkUserProvider.notifier)
             .checkUserCanRegister(usernameController.text);
-        checkUserState.when(
-          loading: () {},
-          data: (canRegister) {
-            if (canRegister == null) {
-              WSToast.show('aaaaaa');
-            } else if (!canRegister) {
-              WSToast.show(useL10n(theContext: ref.context).userExistedErr);
-            }
-          },
-          error: (e, _) {
-            FocusManager.instance.primaryFocus?.unfocus();
-            handleException(
-                GeneralException.toGeneralException(e as Exception));
-          },
-        );
       }
       lastUsername.value = usernameController.text;
     }

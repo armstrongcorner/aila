@@ -57,7 +57,10 @@ final checkUserProvider =
         (ref) => CheckUserProvider(ref.read(userApiProvider)));
 
 class CheckUserProvider extends StateNotifier<AsyncValue<bool?>> {
-  CheckUserProvider(this._userApi) : super(const AsyncData(null));
+  CheckUserProvider(this._userApi) : super(const AsyncData(null)) {
+    print('111111');
+  }
+
   final UserApi _userApi;
 
   Future<void> checkUserCanRegister(String username) async {
