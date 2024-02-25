@@ -28,5 +28,7 @@
     "clearChatHistory": "清空会话",
     "clearChatConfirmTip": "确认清空当前账号会话记录吗？",
     "totalChatCount": "当前数目:",
-    "tokenExpireWarning": "当前登录已过期，请重新登录"
+    "tokenExpireWarning": "当前登录已过期，请重新登录",
+    "renewTokenErr": "续订失败，请重新登录",
+    "sendRequestErr": "发送请求失败，请重新登录"
 }

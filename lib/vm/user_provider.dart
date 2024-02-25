@@ -57,9 +57,7 @@ final checkUserProvider =
         (ref) => CheckUserProvider(ref.read(userApiProvider)));
 
 class CheckUserProvider extends StateNotifier<AsyncValue<bool?>> {
-  CheckUserProvider(this._userApi) : super(const AsyncData(null)) {
-    print('111111');
-  }
+  CheckUserProvider(this._userApi) : super(const AsyncData(null));
 
   final UserApi _userApi;
 

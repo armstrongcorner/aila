@@ -18,20 +18,24 @@ final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(
       sessionManager: ref.read(sessionManagerProvider),
       connectivity: Connectivity(),
       client: Dio(),
+      ref: ref,
     ));
 
 class ApiClient {
   final SessionManager sessionManager;
   final Connectivity connectivity;
   final Dio client;
+  final Ref ref;
 
   final String TAG = 'ApiClient';
 
   ApiClient(
       {required this.sessionManager,
       required this.connectivity,
-      required this.client}) {
-    client.interceptors.add(AuthInterceptor(sessionManager: sessionManager));
+      required this.client,
+      required this.ref}) {
+    client.interceptors
+        .add(AuthInterceptor(ref: ref, sessionManager: sessionManager));
   }
 
   Future<void> _checkNetwork() async {

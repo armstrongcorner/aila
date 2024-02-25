@@ -181,6 +181,7 @@ class SpKeys {
   static const USE_BIOMETRICS = 'use_biometrics';
   static const REMEMBER_USERNAME = 'remember_username';
   static const USERNAME = 'username';
+  static const PASSWORD = 'password';
   static const TOKEN = 'token';
   static const SELECTED_LANGUAGE = 'selected_language';
 }

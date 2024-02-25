@@ -195,6 +195,7 @@ class LoginForm extends HookConsumerWidget {
             SessionManager sessionManager = ref.read(sessionManagerProvider);
             sessionManager.setToken(auth?.value?.token ?? '');
             sessionManager.setUsername(username);
+            sessionManager.setPassword(password);
 
             appRouter.go(RouteURL.chat);
           } else if (!(auth?.isSuccess ?? false) &&

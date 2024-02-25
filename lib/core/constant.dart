@@ -23,6 +23,8 @@ const String PROD_URL = 'https://intensivechatdev.azurewebsites.net/api';
 
 const String USER_URL = 'https://intensivecredentialdev.azurewebsites.net/api';
 const String CHAT_URL = 'https://intensiveconversedev.azurewebsites.net/api';
+// const String USER_URL = 'https://intensivecredentialprod.azurewebsites.net/api';
+// const String CHAT_URL = 'https://intensiveconverseprod.azurewebsites.net/api';
 
 /*
  * Network error code

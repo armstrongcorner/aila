@@ -12,6 +12,7 @@ class SessionManager {
   String _env = '';
   String _token = '';
   String _username = '';
+  String _password = '';
 
   String getAppOS() {
     if (_appOS == '') {
@@ -73,8 +74,21 @@ class SessionManager {
     await SpUtil.putString(SpKeys.USERNAME, value);
   }
 
+  String getPassword() {
+    if (_password == '') {
+      _password = SpUtil.getString(SpKeys.PASSWORD);
+    }
+    return _password;
+  }
+
+  Future<void> setPassword(String value) async {
+    _password = value;
+    await SpUtil.putString(SpKeys.PASSWORD, value);
+  }
+
   void logout() async {
     await setUsername('');
+    await setPassword('');
     await setToken('');
   }
 }
