@@ -86,8 +86,10 @@ class SessionManager {
     await SpUtil.putString(SpKeys.PASSWORD, value);
   }
 
-  void logout() async {
-    await setUsername('');
+  void logout({keepUsername = true}) async {
+    if (!keepUsername) {
+      await setUsername('');
+    }
     await setPassword('');
     await setToken('');
   }

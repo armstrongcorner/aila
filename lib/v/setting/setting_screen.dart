@@ -140,7 +140,7 @@ class SettingPage extends HookConsumerWidget {
                             final appRoute = ref.read(appRouterProvider);
                             final sessionManager =
                                 ref.read(sessionManagerProvider);
-                            sessionManager.logout();
+                            sessionManager.logout(keepUsername: false);
                             appRoute.go(RouteURL.login);
                           },
                         ),

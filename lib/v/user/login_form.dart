@@ -21,9 +21,11 @@ class LoginForm extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sessionManager = ref.read(sessionManagerProvider);
     // final usernameNode = useFocusNode();
     // final passwordNode = useFocusNode();
-    final usernameController = useTextEditingController();
+    final usernameController =
+        useTextEditingController(text: sessionManager.getUsername());
     final passwordController = useTextEditingController();
 
     final RequestState<AuthResultModel?> loginState = ref.watch(authProvider);
@@ -190,12 +192,12 @@ class LoginForm extends HookConsumerWidget {
       res.when(
         idle: () {},
         loading: () {},
-        success: (AuthResultModel? auth) {
+        success: (AuthResultModel? auth) async {
           if ((auth?.isSuccess ?? false) && isNotEmpty(auth?.value?.token)) {
             SessionManager sessionManager = ref.read(sessionManagerProvider);
-            sessionManager.setToken(auth?.value?.token ?? '');
-            sessionManager.setUsername(username);
-            sessionManager.setPassword(password);
+            await sessionManager.setToken(auth?.value?.token ?? '');
+            await sessionManager.setUsername(username);
+            await sessionManager.setPassword(password);
 
             appRouter.go(RouteURL.chat);
           } else if (!(auth?.isSuccess ?? false) &&
