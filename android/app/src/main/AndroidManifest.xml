@@ -3,7 +3,7 @@
         android:name="android.permission.INTERNET" />
         
     <application
-        android:label="aila"
+        android:label="袁公宝册"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
