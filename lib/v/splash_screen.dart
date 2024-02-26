@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:aila/core/session_manager.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/vm/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/route/app_route.dart';
 import '../core/state/request_state_notifier.dart';
@@ -49,6 +52,19 @@ class SplashPage extends HookConsumerWidget {
     final sessionManager = ref.read(sessionManagerProvider);
     final savedUsername = sessionManager.getUsername();
     final savedToken = sessionManager.getToken();
+
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) async {
+      // version number
+      await sessionManager.setAppVersion(packageInfo.version);
+      // platform
+      if (Platform.isIOS) {
+        await sessionManager.setAppOS('iOS');
+      } else if (Platform.isAndroid) {
+        await sessionManager.setAppOS('Android');
+      } else {
+        await sessionManager.setAppOS('other');
+      }
+    });
 
     if (isNotEmpty(savedUsername) && isNotEmpty(savedToken)) {
       // Login before, using get user info api to validate the existing token
