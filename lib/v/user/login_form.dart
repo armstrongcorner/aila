@@ -42,7 +42,7 @@ class LoginForm extends HookConsumerWidget {
               Align(
                 alignment: Alignment.center,
                 child: Image.asset(
-                  'assets/images/sidu_logo.png',
+                  'assets/images/godscript_logo.png',
                   width: 0.6.sw,
                   height: 0.6.sw,
                 ),
