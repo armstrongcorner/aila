@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:aila/core/general_exception.dart';
 import 'package:aila/core/session_manager.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/vm/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -39,7 +41,14 @@ class SplashPage extends HookConsumerWidget {
       },
       error: (Object error, StackTrace stackTrace) {
         return Container(
-          color: Colors.red,
+          color: WSColor.primaryBgColor,
+          child: Center(
+            child: Text(
+              getErrorMessage(getErrorCode(
+                  GeneralException.toGeneralException(error as Exception))),
+              style: TextStyle(fontSize: 18.sp),
+            ),
+          ),
         );
       },
     );
