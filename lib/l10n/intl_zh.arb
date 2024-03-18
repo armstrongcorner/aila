@@ -30,5 +30,7 @@
     "totalChatCount": "当前数目:",
     "tokenExpireWarning": "当前登录已过期，请重新登录",
     "renewTokenErr": "续订失败，请重新登录",
-    "sendRequestErr": "发送请求失败，请重新登录"
+    "sendRequestErr": "发送请求失败，请重新登录",
+    "selectFromGallery": "相册",
+    "selectFromCamera": "拍照"
 }

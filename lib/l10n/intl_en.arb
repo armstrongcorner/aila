@@ -30,5 +30,7 @@
     "totalChatCount": "total chats:",
     "tokenExpireWarning": "Login expired. Please login again.",
     "renewTokenErr": "Renew token error, Please login again.",
-    "sendRequestErr": "Send request error, Please login again."
+    "sendRequestErr": "Send request error, Please login again.",
+    "selectFromGallery": "Gallery",
+    "selectFromCamera": "Camera"
 }

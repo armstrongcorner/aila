@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import '../../core/use_l10n.dart';
 
@@ -249,14 +250,83 @@ class ChatContent extends HookConsumerWidget {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
-                                padding: const EdgeInsets.all(10),
-                                child: SelectableText(
-                                  item.content ?? '',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15.sp,
-                                  ),
-                                ),
+                                padding: EdgeInsets.all(
+                                    item.content is AssetEntity ? 0 : 10),
+                                child: item.type == 'text'
+                                    ? SelectableText(
+                                        item.content ?? '',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15.sp,
+                                        ),
+                                      )
+                                    : item.type == 'image'
+                                        ? item.content is AssetEntity
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    AssetPickerViewer
+                                                        .pushToViewer(
+                                                      context,
+                                                      currentIndex: 0,
+                                                      previewAssets: [
+                                                        item.content
+                                                      ],
+                                                      themeData:
+                                                          AssetPicker.themeData(
+                                                              WSColor.gptColor),
+                                                    );
+                                                  },
+                                                  child: Stack(
+                                                    alignment:
+                                                        AlignmentDirectional
+                                                            .center,
+                                                    children: [
+                                                      Image(
+                                                        image:
+                                                            AssetEntityImageProvider(
+                                                                item.content,
+                                                                isOriginal:
+                                                                    false),
+                                                        fit: BoxFit.cover,
+                                                        opacity: AlwaysStoppedAnimation(
+                                                            (item.receivedSize ??
+                                                                            0) <
+                                                                        (item.totalSize ??
+                                                                            1) &&
+                                                                    item.status ==
+                                                                        ChatStatus
+                                                                            .uploading
+                                                                ? 0.4
+                                                                : 1.0),
+                                                      ),
+                                                      Visibility(
+                                                        visible: (item.receivedSize ??
+                                                                    0) <
+                                                                (item.totalSize ??
+                                                                    1) &&
+                                                            item.status ==
+                                                                ChatStatus
+                                                                    .uploading,
+                                                        child: Text(
+                                                          '${((item.receivedSize ?? 0) / (item.totalSize ?? 1) * 100).toStringAsFixed(0)}%',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 18.sp,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : Text(item
+                                                .content) // 此处应该是图片url，载入网络图片
+                                        : Container(),
                               ),
                             ),
                             Container(

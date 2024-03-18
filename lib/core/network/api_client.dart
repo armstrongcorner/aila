@@ -332,13 +332,13 @@ class ApiClient {
       Map<String, String>? headers,
       Map<String, dynamic>? queryParams,
       Map<String, String>? fieldData,
-      Function? progressCallback,
+      String? fileFieldName,
+      Function(int sent, int total)? onSendProgress,
       int timeout = NETWORK_TIMEOUT}) async {
     try {
       await _checkNetwork();
       var url = getBaseUrl(overridedBaseUrl: myBaseUrl) + path;
       final newHeaders = await getHeaders(newHeaders: headers);
-      CancelToken cancelToken = CancelToken();
       var formData = FormData();
       /* 
        * NOTE: Adding field data and files as MapEntry 1 by 1 to avoid field key with '[]'
@@ -350,7 +350,7 @@ class ApiClient {
       }
       for (var filePath in filePaths) {
         formData.files.add(MapEntry(
-            'files',
+            fileFieldName ?? 'files',
             MultipartFile.fromFileSync(filePath,
                 filename: basename(filePath))));
       }
@@ -360,17 +360,19 @@ class ApiClient {
             url,
             data: formData,
             queryParameters: queryParams,
-            options:
-                Options(headers: newHeaders, responseType: ResponseType.bytes),
-            onReceiveProgress: progressCallback == null
-                ? null
-                : (int count, int total) {
+            options: Options(
+              headers: newHeaders,
+              contentType: 'multipart/form-data',
+            ),
+            onSendProgress: onSendProgress != null
+                ? (count, total) {
                     if (total == -1) {
                       // Unknown response size make it always 50% default
                       total = count * 2;
                     }
-                    progressCallback(count, total, cancelToken);
-                  },
+                    onSendProgress(count, total);
+                  }
+                : null,
           )
           .timeout(Duration(seconds: timeout));
 

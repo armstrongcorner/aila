@@ -1,9 +1,11 @@
 // ignore_for_file: constant_identifier_names
 
 enum ChatStatus {
-  waiting,
-  done,
-  failure,
+  sending, // Sending the chat context, binary files already uploaded and returned access url
+  waiting, // Waiting for GPT response, normally used to display the waiting UI widget
+  uploading, // Uploading the binary file e.g: image, audio
+  done, // Finish send and already get the response, mark the context as done
+  failure, // Something wrong with send or get response, mark the context as failure and show
 }
 
 /*
