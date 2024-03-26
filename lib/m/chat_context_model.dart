@@ -25,48 +25,63 @@ class ChatContextModel with _$ChatContextModel {
   factory ChatContextModel.fromJson(Map<String, dynamic> json) =>
       _$ChatContextModelFromJson(json);
 
-  factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) {
-    // Image string from hive, need to turn to map list with image url
-    if ((chatHiveModel.content ?? '').contains(':::img_splitter:::')) {
-      List<String> tmpList =
-          (chatHiveModel.content ?? '').split(':::img_splitter:::');
-      final theContentList = [];
-      for (var i = 0; i < tmpList.length; i++) {
-        if (i == 0) {
-          theContentList.add({
-            'type': 'text',
-            'text': tmpList[i],
-          });
-        } else {
-          theContentList.add({
-            'type': 'image_url',
-            'image_url': {
-              'url': tmpList[i],
-            },
-          });
-        }
-      }
+  // factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) {
+  //   // Image string from hive, need to turn to map list with image url
+  //   if ((chatHiveModel.content ?? '').contains(':::img_splitter:::')) {
+  //     List<String> tmpList =
+  //         (chatHiveModel.content ?? '').split(':::img_splitter:::');
+  //     final theContentList = [];
+  //     for (var i = 0; i < tmpList.length; i++) {
+  //       if (i == 0) {
+  //         theContentList.add({
+  //           'type': 'text',
+  //           'text': tmpList[i],
+  //         });
+  //       } else {
+  //         theContentList.add({
+  //           'type': 'image_url',
+  //           'image_url': {
+  //             'url': tmpList[i],
+  //           },
+  //         });
+  //       }
+  //     }
 
-      return ChatContextModel(
+  //     return ChatContextModel(
+  //       id: chatHiveModel.id,
+  //       role: chatHiveModel.role,
+  //       content: theContentList,
+  //       createAt: chatHiveModel.createAt,
+  //       status: (chatHiveModel.isSuccess ?? false)
+  //           ? ChatStatus.done
+  //           : ChatStatus.failure,
+  //       isCompleteChatFlag: chatHiveModel.isCompleteChatFlag,
+  //     );
+  //   }
+  //   return ChatContextModel(
+  //     id: chatHiveModel.id,
+  //     role: chatHiveModel.role,
+  //     content: chatHiveModel.content,
+  //     createAt: chatHiveModel.createAt,
+  //     status: (chatHiveModel.isSuccess ?? false)
+  //         ? ChatStatus.done
+  //         : ChatStatus.failure,
+  //     isCompleteChatFlag: chatHiveModel.isCompleteChatFlag,
+  //   );
+  // }
+
+  factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) =>
+      ChatContextModel(
         id: chatHiveModel.id,
         role: chatHiveModel.role,
-        content: theContentList,
+        content: chatHiveModel.content,
+        type: chatHiveModel.type,
+        fileAccessUrl:
+            chatHiveModel.type == 'image' ? chatHiveModel.content : null,
         createAt: chatHiveModel.createAt,
         status: (chatHiveModel.isSuccess ?? false)
             ? ChatStatus.done
             : ChatStatus.failure,
         isCompleteChatFlag: chatHiveModel.isCompleteChatFlag,
       );
-    }
-    return ChatContextModel(
-      id: chatHiveModel.id,
-      role: chatHiveModel.role,
-      content: chatHiveModel.content,
-      createAt: chatHiveModel.createAt,
-      status: (chatHiveModel.isSuccess ?? false)
-          ? ChatStatus.done
-          : ChatStatus.failure,
-      isCompleteChatFlag: chatHiveModel.isCompleteChatFlag,
-    );
-  }
 }
