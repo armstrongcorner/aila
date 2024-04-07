@@ -28,8 +28,6 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>aaa</string>
-	<key>NSCameraUsageDescription</key>
-	<string>bbb</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

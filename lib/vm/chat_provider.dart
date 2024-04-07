@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/db/chat_hive_model.dart';
@@ -33,49 +34,17 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
   final ChatLocalDataSource _chatLocalDataSource;
   final SearchApi _searchApi;
   final SessionManager _sessionManager;
-  List<ChatHiveModel>? chatHiveList;
-
-  Future<void> completeChat(ChatContextModel chatItem) async {
-    try {
-      List<ChatContextModel> chatList = state.hasValue ? state.value ?? [] : [];
-      final theList = chatList.map((chat) {
-        if (chat.role == 'assistant' && chat.content == chatItem.content) {
-          final updatedChat = chat.copyWith(isCompleteChatFlag: true);
-          return updatedChat;
-        }
-        return chat;
-      }).toList();
-
-      chatHiveList = await _chatLocalDataSource.getChats(
-          username: _sessionManager.getUsername());
-
-      for (var i = (chatHiveList ?? []).length - 1; i >= 0; i--) {
-        var item = (chatHiveList ?? [])[i];
-        if (item.role == 'assistant' && item.content == chatItem.content) {
-          item.isCompleteChatFlag = true;
-          await _chatLocalDataSource.updateChat(item);
-          break;
-        }
-      }
-
-      if (mounted) {
-        state = AsyncData(theList);
-      }
-    } catch (e) {
-      state = AsyncError(e, StackTrace.current);
-    }
-  }
 
   Future<void> getChatHistory() async {
     try {
       state = const AsyncValue.loading();
-      chatHiveList = await _chatLocalDataSource.getChats(
+      final chatHiveList = await _chatLocalDataSource.getChats(
           username: _sessionManager.getUsername());
       final str = StringBuffer('\n');
-      for (var i = 0; i < (chatHiveList ?? []).length; i++) {
-        var item = (chatHiveList ?? [])[i];
+      for (var i = 0; i < chatHiveList.length; i++) {
+        var item = chatHiveList[i];
 
-        if (i == ((chatHiveList ?? []).length - 1)) {
+        if (i == (chatHiveList.length - 1)) {
           // Last one, need to check complete flag, or compare time to mark complete or not.
           if (!(item.isCompleteChatFlag ?? false)) {
             if (DateUtil.comppareDateTime((item.createAt ?? 0) * 1000,
@@ -89,15 +58,15 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
           }
         }
         str.writeln(
-            '{id: ${item.id}, role: ${item.role}, content: ${item.content}, type: ${item.type}, createAt: ${item.createAt}, isSuccess: ${item.isSuccess}, isComplete: ${item.isCompleteChatFlag}, username: ${item.clientUsername}}');
+            '{id: ${item.id}, role: ${item.role}, content: ${item.content}, createAt: ${item.createAt}, isSuccess: ${item.isSuccess}, isComplete: ${item.isCompleteChatFlag}, username: ${item.clientUsername}}');
       }
-      Log.d(tag, 'getChats(): ${(chatHiveList ?? []).length}: $str');
+      Log.d(tag, 'getChats(): ${chatHiveList.length}: $str');
       if (mounted) {
-        state = AsyncData(((chatHiveList ?? [])
-                .map((item) => ChatContextModel.fromHive(item)))
-            .toList()
-            .reversed
-            .toList());
+        state = AsyncData(
+            (chatHiveList.map((item) => ChatContextModel.fromHive(item)))
+                .toList()
+                .reversed
+                .toList());
       }
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
@@ -178,10 +147,9 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
           }
         }
         // 2-5) Sent the chat
-        final SearchContentResultModel? resultModel = await _searchApi.search(
-          chatContextList.reversed.toList(),
-          model: includeImg ? 'gpt-4-vision-preview' : 'gpt-4',
-        );
+        final SearchContentResultModel? resultModel = includeImg
+            ? await _searchApi.searchWithImg(chatContextList.reversed.toList())
+            : await _searchApi.search(chatContextList.reversed.toList());
 
         // 3) Show and local cache the search result
         chatList.removeAt(0); // Remove the gpt waiting chat item
@@ -189,58 +157,36 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
             (resultModel.isSuccess ?? false) &&
             isNotEmptyList(resultModel.value?.choices)) {
           final theSearchResult = resultModel.value?.choices?[0].message;
-          // 3-1) Local cache the user sent content
-          chatList = chatList.reversed
-              .map((chatContextModel) {
-                if (chatContextModel.status == ChatStatus.sending) {
-                  chatContextModel = chatContextModel.copyWith(
-                    status: ChatStatus.done,
-                    id: resultModel.value?.id,
-                  );
-                  ChatHiveModel convertedUserSentHive =
-                      ChatHiveModel.fromChat(chatContextModel);
-                  convertedUserSentHive.clientUsername =
-                      _sessionManager.getUsername();
-                  _chatLocalDataSource.addChat(convertedUserSentHive);
-                }
-
-                return chatContextModel;
-              })
-              .toList()
-              .reversed
-              .toList();
-          // 3-2) And cache the search result
+          // 3-1) Local cache the user sent and the search result
+          ChatHiveModel convertedUserSentHive =
+              ChatHiveModel.fromChat(chatContextModel);
+          convertedUserSentHive.clientUsername = _sessionManager.getUsername();
+          _chatLocalDataSource.addChat(convertedUserSentHive);
           _chatLocalDataSource.addChat(ChatHiveModel(
               id: resultModel.value?.id,
               role: theSearchResult?.role,
               content: theSearchResult?.content,
-              type: 'text',
               createAt: resultModel.value?.gptResponseTimeUTC,
               isSuccess: true,
               isCompleteChatFlag: false,
               clientUsername: _sessionManager.getUsername()));
-          // 3-3) Show the search result
+          // 3-2) Show the search result
           chatList.insert(
               0,
               ChatContextModel(
                   id: resultModel.value?.id,
                   role: theSearchResult?.role,
                   content: theSearchResult?.content,
-                  type: 'text',
                   createAt: resultModel.value?.gptResponseTimeUTC,
                   status: ChatStatus.done,
                   isCompleteChatFlag: false));
           state = AsyncData(chatList);
         } else {
           // 4) Change user just sent status to failure
-          chatList = chatList.map((chatContextModel) {
-            if (chatContextModel.status == ChatStatus.sending) {
-              chatContextModel = chatContextModel.copyWith(
-                status: ChatStatus.failure,
-              );
-            }
-            return chatContextModel;
-          }).toList();
+          chatList.removeAt(0);
+          final sentChatContextModel =
+              chatContextModel.copyWith(status: ChatStatus.failure);
+          chatList.insert(0, sentChatContextModel);
           state = AsyncData(chatList);
         }
       });

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/date_util.dart';
@@ -156,59 +158,35 @@ class ChatPage extends HookConsumerWidget {
                                         for (int i = 0;
                                             i < finalAssetList.value.length;
                                             i++) ...[
-                                          Stack(
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                child: SizedBox(
-                                                  width: 50.w,
-                                                  height: 50.h,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      AssetPickerViewer
-                                                          .pushToViewer(
-                                                        context,
-                                                        currentIndex: i,
-                                                        previewAssets:
-                                                            finalAssetList
-                                                                .value,
-                                                        themeData: AssetPicker
-                                                            .themeData(WSColor
-                                                                .gptColor),
-                                                      );
-                                                    },
-                                                    child: Image(
-                                                      image:
-                                                          AssetEntityImageProvider(
-                                                              finalAssetList
-                                                                  .value[i],
-                                                              isOriginal:
-                                                                  false),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            child: SizedBox(
+                                              width: 50.w,
+                                              height: 50.h,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  AssetPickerViewer
+                                                      .pushToViewer(
+                                                    context,
+                                                    currentIndex: i,
+                                                    previewAssets:
+                                                        finalAssetList.value,
+                                                    themeData:
+                                                        AssetPicker.themeData(
+                                                            WSColor.gptColor),
+                                                  );
+                                                },
+                                                child: Image(
+                                                  image:
+                                                      AssetEntityImageProvider(
+                                                          finalAssetList
+                                                              .value[i],
+                                                          isOriginal: false),
+                                                  fit: BoxFit.cover,
                                                 ),
                                               ),
-                                              Positioned(
-                                                right: 2.w,
-                                                top: 2.h,
-                                                child: GestureDetector(
-                                                  child: Icon(
-                                                    Icons.cancel,
-                                                    color: Colors.white,
-                                                    size: 18.sp,
-                                                  ),
-                                                  onTap: () {
-                                                    finalAssetList.value
-                                                        .removeAt(i);
-                                                    finalAssetList.value =
-                                                        finalAssetList.value
-                                                            .toList();
-                                                  },
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
                                           SizedBox(width: 8.w),
                                         ],
@@ -268,10 +246,7 @@ class ChatPage extends HookConsumerWidget {
               ),
             ),
             CupertinoActionSheetAction(
-              onPressed: () {
-                ImageUtil.pickFromCamera(context, assetListNotifier)
-                    .then((_) => Navigator.pop(context));
-              },
+              onPressed: () {},
               child: Text(
                 useL10n(theContext: context).selectFromCamera,
                 style: TextStyle(
