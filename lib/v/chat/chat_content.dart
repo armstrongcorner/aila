@@ -2,7 +2,7 @@ import 'package:aila/assets/assets.dart';
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/m/chat_context_model.dart';
-import 'package:aila/v/common_widgets/color.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
-import '../../core/use_l10n.dart';
+import 'chat_end_widget.dart';
 
 class ChatContent extends HookConsumerWidget {
   ChatContent(this.chatList, {super.key});
@@ -50,6 +50,8 @@ class ChatContent extends HookConsumerWidget {
   }
 
   Widget _renderRowSendByGPT(BuildContext context, ChatContextModel item) {
+    bool isLastResponse = (chatList ?? []).indexOf(item) == 0;
+
     return Container(
       padding: EdgeInsets.only(bottom: 20.h),
       child: Column(
@@ -140,33 +142,10 @@ class ChatContent extends HookConsumerWidget {
               ],
             ),
           ),
-          if (item.isCompleteChatFlag ?? false) ...[
-            Padding(
-              padding: EdgeInsets.only(left: 30.w, right: 30.w, top: 20.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(child: Container(height: 0.3.h, color: Colors.grey)),
-                  SizedBox(width: 10.w),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(15.w, 8.h, 15.w, 8.h),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFA1A6BB),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: Text(
-                      useL10n(theContext: context).chatCompleteMark,
-                      style: TextStyle(
-                        color: WSColor.primaryFontColor,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(child: Container(height: 0.3.h, color: Colors.grey)),
-                ],
-              ),
+          if (item.status != ChatStatus.waiting) ...[
+            ChatEndWidget(
+              chatItem: item,
+              isLastResponse: isLastResponse,
             ),
           ],
         ],
@@ -251,7 +230,7 @@ class ChatContent extends HookConsumerWidget {
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 padding: EdgeInsets.all(
-                                    item.content is AssetEntity ? 0 : 10),
+                                    item.type == 'image' ? 0 : 10),
                                 child: item.type == 'text'
                                     ? SelectableText(
                                         item.content ?? '',
@@ -267,17 +246,17 @@ class ChatContent extends HookConsumerWidget {
                                                     BorderRadius.circular(8),
                                                 child: GestureDetector(
                                                   onTap: () {
-                                                    AssetPickerViewer
-                                                        .pushToViewer(
-                                                      context,
-                                                      currentIndex: 0,
-                                                      previewAssets: [
-                                                        item.content
-                                                      ],
-                                                      themeData:
-                                                          AssetPicker.themeData(
-                                                              WSColor.gptColor),
-                                                    );
+                                                    // AssetPickerViewer
+                                                    //     .pushToViewer(
+                                                    //   context,
+                                                    //   currentIndex: 0,
+                                                    //   previewAssets: [
+                                                    //     item.content
+                                                    //   ],
+                                                    //   themeData:
+                                                    //       AssetPicker.themeData(
+                                                    //           WSColor.gptColor),
+                                                    // );
                                                   },
                                                   child: Stack(
                                                     alignment:
@@ -289,7 +268,7 @@ class ChatContent extends HookConsumerWidget {
                                                             AssetEntityImageProvider(
                                                                 item.content,
                                                                 isOriginal:
-                                                                    false),
+                                                                    true),
                                                         fit: BoxFit.cover,
                                                         opacity: AlwaysStoppedAnimation(
                                                             (item.receivedSize ??
@@ -324,8 +303,67 @@ class ChatContent extends HookConsumerWidget {
                                                   ),
                                                 ),
                                               )
-                                            : Text(item
-                                                .content) // 此处应该是图片url，载入网络图片
+                                            : ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: ExtendedImage.network(
+                                                  item.content,
+                                                  fit: BoxFit.cover,
+                                                  opacity:
+                                                      const AlwaysStoppedAnimation(
+                                                          1.0),
+                                                  loadStateChanged: (state) {
+                                                    switch (state
+                                                        .extendedImageLoadState) {
+                                                      case LoadState.loading:
+                                                        return Container(
+                                                          width: 0.5.sw,
+                                                          height: 0.5.sw,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      500]),
+                                                          child: const Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                    color: Colors
+                                                                        .white),
+                                                          ),
+                                                        );
+                                                      case LoadState.completed:
+                                                        return ExtendedRawImage(
+                                                          image: state
+                                                              .extendedImageInfo
+                                                              ?.image,
+                                                        );
+                                                      case LoadState.failed:
+                                                        return GestureDetector(
+                                                          child: Container(
+                                                            width: 0.5.sw,
+                                                            height: 0.5.sw,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        500]),
+                                                            child: Center(
+                                                              child: Icon(
+                                                                Icons.refresh,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 45.sp,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          onTap: () {
+                                                            state.reLoadImage();
+                                                          },
+                                                        );
+                                                    }
+                                                  },
+                                                ),
+                                              )
                                         : Container(),
                               ),
                             ),
