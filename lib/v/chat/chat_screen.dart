@@ -23,10 +23,10 @@ class ChatPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userTextController = useTextEditingController();
     final userTextFocus = useFocusNode();
+    final finalAssetList = useState(<AssetEntity>[]);
+    final toggleMicInput = useState(false);
 
     final chatListState = ref.watch(chatProvider);
-
-    final finalAssetList = useState(<AssetEntity>[]);
 
     return Container(
       color: Colors.white,
@@ -81,9 +81,7 @@ class ChatPage extends HookConsumerWidget {
                         );
                       },
                       loading: () {
-                        return const Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.grey));
+                        return const Center(child: CircularProgressIndicator(color: Colors.grey));
                       },
                     ),
                   ),
@@ -93,98 +91,133 @@ class ChatPage extends HookConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
+                        // toggle voice/text input btn
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            padding: EdgeInsets.fromLTRB(15.w, 0, 0, 0),
+                            alignment: Alignment.center,
+                            height: 70.h,
+                            child: Icon(
+                              !toggleMicInput.value ? Icons.mic : Icons.keyboard,
+                              size: 30.sp,
+                            ),
+                          ),
+                          onTap: () {
+                            toggleMicInput.value = !toggleMicInput.value;
+                          },
+                        ),
                         Expanded(
                           // input text field
                           child: Container(
-                            margin: EdgeInsets.fromLTRB(15.w, 10.h, 0, 10.h),
+                            margin: EdgeInsets.fromLTRB(10.w, 10.h, 0, 10.h),
                             decoration: const BoxDecoration(
                               color: WSColor.primaryBgColor,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(2)),
+                              borderRadius: BorderRadius.all(Radius.circular(2)),
                             ),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TextField(
-                                  controller: userTextController,
-                                  focusNode: userTextFocus,
-                                  textInputAction: TextInputAction.send,
-                                  cursorColor: const Color(0xFF464EB5),
-                                  minLines: 1,
-                                  maxLines: 5,
-                                  maxLength: 500,
-                                  decoration: InputDecoration(
-                                    counterText: '',
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 16.0,
-                                        right: 16.0,
-                                        top: 10.0,
-                                        bottom: 10.0),
-                                    hintText: useL10n().searchPlaceholder,
-                                    hintStyle: const TextStyle(
-                                      color: Color(0xFFADB3BA),
-                                      fontSize: 15,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        selectPhotoSource(
-                                            context, finalAssetList);
-                                      },
-                                      icon: const Icon(
-                                        Icons.add_a_photo,
-                                        color: Colors.black,
+                                !toggleMicInput.value
+                                    ? TextField(
+                                        controller: userTextController,
+                                        focusNode: userTextFocus,
+                                        textInputAction: TextInputAction.send,
+                                        cursorColor: const Color(0xFF464EB5),
+                                        minLines: 1,
+                                        maxLines: 5,
+                                        maxLength: 500,
+                                        decoration: InputDecoration(
+                                          counterText: '',
+                                          border: InputBorder.none,
+                                          contentPadding:
+                                              const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 10.0),
+                                          hintText: useL10n().searchPlaceholder,
+                                          hintStyle: const TextStyle(
+                                            color: Color(0xFFADB3BA),
+                                            fontSize: 15,
+                                          ),
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              selectPhotoSource(context, finalAssetList);
+                                            },
+                                            icon: const Icon(
+                                              Icons.add_a_photo,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        style: const TextStyle(
+                                          color: Color(0xFF03073C),
+                                          fontSize: 15,
+                                        ),
+                                        onSubmitted: (value) {
+                                          sendUserText(ref, userTextController.text, finalAssetList);
+                                          userTextController.clear();
+                                        },
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onLongPressDown: (details) {
+                                                print('aaa');
+                                              },
+                                              onLongPressUp: () {
+                                                print('bbb');
+                                              },
+                                              child: Container(
+                                                // color: Colors.red,
+                                                padding: EdgeInsets.fromLTRB(10.w, 13.h, 0, 13.h),
+                                                child: Text(
+                                                  '按住 说话',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              selectPhotoSource(context, finalAssetList);
+                                            },
+                                            icon: const Icon(
+                                              Icons.add_a_photo,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ),
-                                  style: const TextStyle(
-                                    color: Color(0xFF03073C),
-                                    fontSize: 15,
-                                  ),
-                                  onSubmitted: (value) {
-                                    sendUserText(ref, userTextController.text,
-                                        finalAssetList);
-                                    userTextController.clear();
-                                  },
-                                ),
                                 Visibility(
                                   visible: isNotEmptyList(finalAssetList.value),
                                   child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 10.w, right: 10.w, bottom: 10.h),
+                                    padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h),
                                     child: Row(
                                       children: [
-                                        for (int i = 0;
-                                            i < finalAssetList.value.length;
-                                            i++) ...[
+                                        for (int i = 0; i < finalAssetList.value.length; i++) ...[
                                           Stack(
                                             children: [
                                               ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
+                                                borderRadius: BorderRadius.circular(5),
                                                 child: SizedBox(
                                                   width: 50.w,
                                                   height: 50.h,
                                                   child: GestureDetector(
                                                     onTap: () {
-                                                      AssetPickerViewer
-                                                          .pushToViewer(
+                                                      AssetPickerViewer.pushToViewer(
                                                         context,
                                                         currentIndex: i,
-                                                        previewAssets:
-                                                            finalAssetList
-                                                                .value,
-                                                        themeData: AssetPicker
-                                                            .themeData(WSColor
-                                                                .gptColor),
+                                                        previewAssets: finalAssetList.value,
+                                                        themeData: AssetPicker.themeData(WSColor.gptColor),
                                                       );
                                                     },
                                                     child: Image(
-                                                      image:
-                                                          AssetEntityImageProvider(
-                                                              finalAssetList
-                                                                  .value[i],
-                                                              isOriginal:
-                                                                  false),
+                                                      image: AssetEntityImageProvider(finalAssetList.value[i],
+                                                          isOriginal: false),
                                                       fit: BoxFit.cover,
                                                     ),
                                                   ),
@@ -200,11 +233,8 @@ class ChatPage extends HookConsumerWidget {
                                                     size: 18.sp,
                                                   ),
                                                   onTap: () {
-                                                    finalAssetList.value
-                                                        .removeAt(i);
-                                                    finalAssetList.value =
-                                                        finalAssetList.value
-                                                            .toList();
+                                                    finalAssetList.value.removeAt(i);
+                                                    finalAssetList.value = finalAssetList.value.toList();
                                                   },
                                                 ),
                                               ),
@@ -230,8 +260,7 @@ class ChatPage extends HookConsumerWidget {
                             child: const Icon(Icons.send),
                           ),
                           onTap: () {
-                            sendUserText(
-                                ref, userTextController.text, finalAssetList);
+                            sendUserText(ref, userTextController.text, finalAssetList);
                             userTextController.clear();
                           },
                         ),
@@ -247,8 +276,7 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  void selectPhotoSource(BuildContext context,
-      ValueNotifier<List<AssetEntity>> assetListNotifier) {
+  void selectPhotoSource(BuildContext context, ValueNotifier<List<AssetEntity>> assetListNotifier) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -256,8 +284,7 @@ class ChatPage extends HookConsumerWidget {
           actions: [
             CupertinoActionSheetAction(
               onPressed: () {
-                ImageUtil.pickFromAlbum(context, assetListNotifier)
-                    .then((_) => Navigator.pop(context));
+                ImageUtil.pickFromAlbum(context, assetListNotifier).then((_) => Navigator.pop(context));
               },
               child: Text(
                 useL10n(theContext: context).selectFromGallery,
@@ -269,8 +296,7 @@ class ChatPage extends HookConsumerWidget {
             ),
             CupertinoActionSheetAction(
               onPressed: () {
-                ImageUtil.pickFromCamera(context, assetListNotifier)
-                    .then((_) => Navigator.pop(context));
+                ImageUtil.pickFromCamera(context, assetListNotifier).then((_) => Navigator.pop(context));
               },
               child: Text(
                 useL10n(theContext: context).selectFromCamera,
@@ -298,8 +324,7 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Future<void> sendUserText(WidgetRef ref, String userText,
-      ValueNotifier<List<AssetEntity>> finalAssetList) async {
+  Future<void> sendUserText(WidgetRef ref, String userText, ValueNotifier<List<AssetEntity>> finalAssetList) async {
     final userChatList = <ChatContextModel>[];
 
     if (isNotEmpty(userText)) {
@@ -322,8 +347,7 @@ class ChatPage extends HookConsumerWidget {
         type: 'image',
         sentSize: 0,
         receivedSize: 0,
-        totalSize: await finalAssetList.value[i].file
-            .then((file) => file?.lengthSync()),
+        totalSize: await finalAssetList.value[i].file.then((file) => file?.lengthSync()),
         createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
         status: ChatStatus.uploading,
         isCompleteChatFlag: false,
