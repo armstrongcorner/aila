@@ -30,6 +30,8 @@ class ChatPage extends HookConsumerWidget {
     final startToSpeech = useState(false);
     final recordDuration = useState(0);
     final recordVolume = useState(0.0);
+    final recordLength = useState(0);
+    final recordFilePath = useState('');
 
     final chatListState = ref.watch(chatProvider);
 
@@ -167,47 +169,102 @@ class ChatPage extends HookConsumerWidget {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Expanded(
-                                                child: GestureDetector(
-                                                  onLongPressStart: (_) {
-                                                    startToSpeech.value = true;
-                                                    AudioUtil.startRecorder(
-                                                      progressCallback: (duration, volume) {
-                                                        print('record duration: $duration');
-                                                        print('record volume: $volume');
-                                                        recordDuration.value = duration;
-                                                        recordVolume.value = volume;
-                                                      },
-                                                      completeCallback: (length, audioFilePath) {
-                                                        startToSpeech.value = false;
-                                                        print('final length: $length');
-                                                        print('audio file path: $audioFilePath');
-                                                      },
-                                                    );
-                                                  },
-                                                  onLongPressEnd: (_) {
-                                                    if (startToSpeech.value) {
-                                                      startToSpeech.value = false;
-                                                      AudioUtil.stopRecorder(
-                                                        completeCallback: (length, audioFilePath) {
-                                                          print('final length: $length');
-                                                          print('audio file path: $audioFilePath');
+                                                child: recordLength.value == 0 && isEmpty(recordFilePath.value)
+                                                    ? GestureDetector(
+                                                        onLongPressStart: (_) {
+                                                          startToSpeech.value = true;
+                                                          AudioUtil.startRecorder(
+                                                            progressCallback: (duration, volume) {
+                                                              recordDuration.value = duration;
+                                                              recordVolume.value = volume;
+                                                            },
+                                                            completeCallback: (length, audioFilePath) {
+                                                              startToSpeech.value = false;
+                                                              print('final length: $length');
+                                                              print('audio file path: $audioFilePath');
+                                                              recordLength.value = length;
+                                                              recordFilePath.value = audioFilePath;
+                                                            },
+                                                          );
                                                         },
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    // color: Colors.red,
-                                                    padding: EdgeInsets.fromLTRB(10.w, 13.h, 0, 13.h),
-                                                    child: Text(
-                                                      useL10n().holdToSpeech,
-                                                      textAlign: TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 16.sp,
-                                                        fontWeight: FontWeight.bold,
+                                                        onLongPressEnd: (_) {
+                                                          if (startToSpeech.value) {
+                                                            startToSpeech.value = false;
+                                                            AudioUtil.stopRecorder(
+                                                              completeCallback: (length, audioFilePath) {
+                                                                print('final length: $length');
+                                                                print('audio file path: $audioFilePath');
+                                                                recordLength.value = length;
+                                                                recordFilePath.value = audioFilePath;
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          padding: EdgeInsets.fromLTRB(10.w, 13.h, 0, 13.h),
+                                                          child: Text(
+                                                            useL10n().holdToSpeech,
+                                                            textAlign: TextAlign.center,
+                                                            style: TextStyle(
+                                                              fontSize: 16.sp,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : GestureDetector(
+                                                        onTap: () {
+                                                          print('aaaaaa: ${recordFilePath.value}');
+                                                        },
+                                                        child: Container(
+                                                          margin: EdgeInsets.fromLTRB(10.w, 8.h, 15.w, 8.h),
+                                                          padding: EdgeInsets.fromLTRB(0, 5.h, 0, 5.h),
+                                                          decoration: BoxDecoration(
+                                                            color: WSColor.gptColor,
+                                                            borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                                            border: Border.all(
+                                                              color: Colors.white,
+                                                              width: .5,
+                                                            ),
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              const Spacer(flex: 12),
+                                                              Text(
+                                                                useL10n().clickToPlay,
+                                                                textAlign: TextAlign.center,
+                                                                style: TextStyle(
+                                                                  color: Colors.white,
+                                                                  fontSize: 15.sp,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 10.w,
+                                                              ),
+                                                              Icon(
+                                                                Icons.volume_up,
+                                                                color: Colors.white,
+                                                                size: 24.sp,
+                                                              ),
+                                                              const Spacer(flex: 10),
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  recordLength.value = 0;
+                                                                  recordFilePath.value = '';
+                                                                },
+                                                                child: Icon(
+                                                                  Icons.cancel,
+                                                                  color: Colors.white,
+                                                                  size: 18.sp,
+                                                                ),
+                                                              ),
+                                                              const Spacer(flex: 2),
+                                                            ],
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                ),
                                               ),
                                               IconButton(
                                                 onPressed: () {

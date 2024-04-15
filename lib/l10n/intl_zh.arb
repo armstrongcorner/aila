@@ -35,6 +35,7 @@
     "selectFromGallery": "相册",
     "selectFromCamera": "拍照",
     "holdToSpeech": "按住 说话",
+    "clickToPlay": "点击播放",
     "recordDuration": "录音时长",
     "max": "最多"
 }

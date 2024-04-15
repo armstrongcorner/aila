@@ -35,6 +35,7 @@
     "selectFromGallery": "Gallery",
     "selectFromCamera": "Camera",
     "holdToSpeech": "Hold to speech",
+    "clickToPlay": "Click to play",
     "recordDuration": "Recording",
     "max": "max"
 }
