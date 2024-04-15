@@ -29,27 +29,25 @@ class ApiClient {
 
   final String TAG = 'ApiClient';
 
-  ApiClient(
-      {required this.sessionManager,
-      required this.connectivity,
-      required this.client,
-      required this.ref}) {
-    client.interceptors
-        .add(AuthInterceptor(ref: ref, sessionManager: sessionManager));
+  ApiClient({required this.sessionManager, required this.connectivity, required this.client, required this.ref}) {
+    client.interceptors.add(AuthInterceptor(ref: ref, sessionManager: sessionManager));
   }
 
   Future<void> _checkNetwork() async {
     bool isAvailableNetwork = false;
-    var connectivityResult = await connectivity.checkConnectivity();
-    if (connectivityResult == ConnectivityResult.mobile) {
-      isAvailableNetwork = true;
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      isAvailableNetwork = true;
+    var connectivityResults = await connectivity.checkConnectivity();
+    for (var result in connectivityResults) {
+      if (result == ConnectivityResult.mobile) {
+        isAvailableNetwork = true;
+        break;
+      } else if (result == ConnectivityResult.wifi) {
+        isAvailableNetwork = true;
+        break;
+      }
     }
 
     if (!isAvailableNetwork) {
-      throw GeneralException(
-          CODE_NETWORK_EXCEPTION, getErrorMessage(CODE_NETWORK_EXCEPTION));
+      throw GeneralException(CODE_NETWORK_EXCEPTION, getErrorMessage(CODE_NETWORK_EXCEPTION));
     }
   }
 
@@ -67,10 +65,7 @@ class ApiClient {
           .get(
             url,
             queryParameters: queryParams,
-            options: Options(
-                headers: newHeaders,
-                responseType:
-                    decodeJSON ? ResponseType.json : ResponseType.plain),
+            options: Options(headers: newHeaders, responseType: decodeJSON ? ResponseType.json : ResponseType.plain),
           )
           .timeout(Duration(seconds: timeout));
 
@@ -88,8 +83,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -108,8 +102,7 @@ class ApiClient {
           .get(
             url,
             queryParameters: queryParams,
-            options:
-                Options(headers: newHeaders, responseType: ResponseType.bytes),
+            options: Options(headers: newHeaders, responseType: ResponseType.bytes),
             onReceiveProgress: progressCallback == null
                 ? null
                 : (int count, int total) {
@@ -136,8 +129,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -156,10 +148,7 @@ class ApiClient {
             url,
             data: postData,
             queryParameters: queryParams,
-            options: Options(
-                headers: newHeaders,
-                responseType:
-                    decodeJSON ? ResponseType.json : ResponseType.plain),
+            options: Options(headers: newHeaders, responseType: decodeJSON ? ResponseType.json : ResponseType.plain),
           )
           .timeout(Duration(seconds: timeout));
 
@@ -179,8 +168,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -200,10 +188,7 @@ class ApiClient {
             url,
             data: deleteData,
             queryParameters: queryParams,
-            options: Options(
-                headers: newHeaders,
-                responseType:
-                    decodeJSON ? ResponseType.json : ResponseType.plain),
+            options: Options(headers: newHeaders, responseType: decodeJSON ? ResponseType.json : ResponseType.plain),
           )
           .timeout(Duration(seconds: timeout));
 
@@ -223,8 +208,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -244,10 +228,7 @@ class ApiClient {
             url,
             data: putData,
             queryParameters: queryParams,
-            options: Options(
-                headers: newHeaders,
-                responseType:
-                    decodeJSON ? ResponseType.json : ResponseType.plain),
+            options: Options(headers: newHeaders, responseType: decodeJSON ? ResponseType.json : ResponseType.plain),
           )
           .timeout(Duration(seconds: timeout));
 
@@ -267,8 +248,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -291,8 +271,7 @@ class ApiClient {
             url,
             savePath,
             queryParameters: queryParams,
-            options:
-                Options(headers: newHeaders, responseType: ResponseType.bytes),
+            options: Options(headers: newHeaders, responseType: ResponseType.bytes),
             onReceiveProgress: progressCallback == null
                 ? null
                 : (int count, int total) {
@@ -319,8 +298,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -349,10 +327,8 @@ class ApiClient {
         formData.fields.addAll(fieldData.entries);
       }
       for (var filePath in filePaths) {
-        formData.files.add(MapEntry(
-            fileFieldName ?? 'files',
-            MultipartFile.fromFileSync(filePath,
-                filename: basename(filePath))));
+        formData.files.add(
+            MapEntry(fileFieldName ?? 'files', MultipartFile.fromFileSync(filePath, filename: basename(filePath))));
       }
 
       final response = await client
@@ -390,13 +366,11 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(
-          CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
-  Future<Map<String, dynamic>> getHeaders(
-      {Map<String, dynamic>? newHeaders}) async {
+  Future<Map<String, dynamic>> getHeaders({Map<String, dynamic>? newHeaders}) async {
     var headers = <String, dynamic>{};
 
     final appOS = sessionManager.getAppOS();

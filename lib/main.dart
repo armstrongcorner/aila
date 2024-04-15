@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aila/core/utils/audio_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -21,6 +22,8 @@ void main() {
     // Init local storage (Hive)
     final localStorage = WSLocalStorage();
     await localStorage.init();
+    // Init audio util
+    await AudioUtil.getInstance();
 
     runApp(const ProviderScope(child: App()));
   }, _handleError);
@@ -30,8 +33,7 @@ void main() {
 Future<void> _handleError(Object error, StackTrace stackTrace) async {
   if (error is SocketException) {
     // no internet connection, can be ignored
-    Log.w('App on SocketException',
-        'ignoring internet connection error $error, $stackTrace');
+    Log.w('App on SocketException', 'ignoring internet connection error $error, $stackTrace');
     return;
   }
 

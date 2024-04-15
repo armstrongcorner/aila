@@ -29,9 +29,8 @@ class Log {
     logger.w(formatTag(tag) + message);
   }
 
-  static void e(String tag, dynamic message,
-      [dynamic error, StackTrace? stackTrace]) {
-    logger.e(formatTag(tag) + message, error, stackTrace);
+  static void e(String tag, dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    logger.e(formatTag(tag) + message, error: error, stackTrace: stackTrace);
   }
 
   static String formatTag(String tag) {

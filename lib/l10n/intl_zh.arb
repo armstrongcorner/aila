@@ -6,6 +6,7 @@
     "clearContentBtnTitle": "清除搜索结果",
     "ok": "确定",
     "cancel": "取消",
+    "error": "错误",
     "sendBtnTitle": "发送",
     "username": "用户名",
     "usernameOrMobile": "用户名或电话号码",
@@ -32,5 +33,8 @@
     "renewTokenErr": "续订失败，请重新登录",
     "sendRequestErr": "发送请求失败，请重新登录",
     "selectFromGallery": "相册",
-    "selectFromCamera": "拍照"
+    "selectFromCamera": "拍照",
+    "holdToSpeech": "按住 说话",
+    "recordDuration": "录音时长",
+    "max": "最多"
 }

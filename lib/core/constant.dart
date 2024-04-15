@@ -47,3 +47,4 @@ const String USER_DEFAULT_ROLE = 'User';
  */
 const int CHAT_COMPLETE_GAP_IN_MINUTES = 60;
 const int MAX_CHAT_DEPTH = 15;
+const int MAX_AUDIO_LENGTH = 60;
