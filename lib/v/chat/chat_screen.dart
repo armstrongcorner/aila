@@ -307,8 +307,18 @@ class ChatPage extends HookConsumerWidget {
                                                                 ),
                                                               ),
                                                               const Spacer(flex: 10),
+                                                              // Delete the current audio
                                                               GestureDetector(
                                                                 onTap: () {
+                                                                  // Stop first
+                                                                  AudioUtil.stopPlayer(
+                                                                    completeCallback: () {
+                                                                      playbackState.value = PlaybackState.stop;
+                                                                      playbackPosition.value = 0;
+                                                                      // Then delete
+                                                                      AudioUtil.deleteFile(recordFilePath.value);
+                                                                    },
+                                                                  );
                                                                   recordLength.value = 0;
                                                                   recordFilePath.value = '';
                                                                 },

@@ -210,4 +210,11 @@ class AudioUtil {
   static Future<bool> fileExists(String path) async {
     return await File(path).exists();
   }
+
+  static Future<void> deleteFile(String path) async {
+    if (await fileExists(path)) {
+      var theFile = File(path);
+      theFile.delete();
+    }
+  }
 }
