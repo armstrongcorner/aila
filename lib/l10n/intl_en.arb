@@ -35,7 +35,10 @@
     "selectFromGallery": "Gallery",
     "selectFromCamera": "Camera",
     "holdToSpeech": "Hold to speech",
-    "clickToPlay": "Click to play",
+    "clickToPlay": "Play",
+    "clickToResume": "Resume",
+    "playbackProgress": "Playing",
+    "stopPlayback": "Stop playing",
     "recordDuration": "Recording",
     "max": "max"
 }

@@ -5,6 +5,7 @@ import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/core/utils/image_util.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/v/common_widgets/color.dart';
+import 'package:aila/v/common_widgets/toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,6 +18,12 @@ import '../../m/chat_context_model.dart';
 import '../../vm/chat_provider.dart';
 import 'chat_audio_record_overlay.dart';
 import 'chat_content.dart';
+
+enum PlaybackState {
+  stop,
+  paused,
+  playing,
+}
 
 class ChatPage extends HookConsumerWidget {
   const ChatPage({super.key});
@@ -32,6 +39,8 @@ class ChatPage extends HookConsumerWidget {
     final recordVolume = useState(0.0);
     final recordLength = useState(0);
     final recordFilePath = useState('');
+    final playbackPosition = useState(0);
+    final playbackState = useState(PlaybackState.stop);
 
     final chatListState = ref.watch(chatProvider);
 
@@ -180,8 +189,6 @@ class ChatPage extends HookConsumerWidget {
                                                             },
                                                             completeCallback: (length, audioFilePath) {
                                                               startToSpeech.value = false;
-                                                              print('final length: $length');
-                                                              print('audio file path: $audioFilePath');
                                                               recordLength.value = length;
                                                               recordFilePath.value = audioFilePath;
                                                             },
@@ -192,8 +199,6 @@ class ChatPage extends HookConsumerWidget {
                                                             startToSpeech.value = false;
                                                             AudioUtil.stopRecorder(
                                                               completeCallback: (length, audioFilePath) {
-                                                                print('final length: $length');
-                                                                print('audio file path: $audioFilePath');
                                                                 recordLength.value = length;
                                                                 recordFilePath.value = audioFilePath;
                                                               },
@@ -214,7 +219,42 @@ class ChatPage extends HookConsumerWidget {
                                                       )
                                                     : GestureDetector(
                                                         onTap: () {
-                                                          print('aaaaaa: ${recordFilePath.value}');
+                                                          if (playbackState.value == PlaybackState.stop ||
+                                                              playbackState.value == PlaybackState.paused) {
+                                                            playbackState.value = PlaybackState.playing;
+                                                            AudioUtil.startOrResumePlayer(
+                                                              path: recordFilePath.value,
+                                                              progressCallback: (_, position) {
+                                                                playbackPosition.value = position;
+                                                              },
+                                                              completeCallback: () {
+                                                                playbackState.value = PlaybackState.stop;
+                                                                playbackPosition.value = 0;
+                                                              },
+                                                            );
+                                                          } else if (playbackState.value == PlaybackState.playing) {
+                                                            AudioUtil.pausePlayer(
+                                                              pauseCallback: () {
+                                                                playbackState.value = PlaybackState.paused;
+                                                              },
+                                                              failureCallback: () {
+                                                                playbackState.value = PlaybackState.stop;
+                                                                playbackPosition.value = 0;
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                        onLongPress: () {
+                                                          if (playbackState.value == PlaybackState.playing ||
+                                                              playbackState.value == PlaybackState.paused) {
+                                                            AudioUtil.stopPlayer(
+                                                              completeCallback: () {
+                                                                playbackState.value = PlaybackState.stop;
+                                                                playbackPosition.value = 0;
+                                                              },
+                                                            );
+                                                            WSToast.show(useL10n(theContext: context).stopPlayback);
+                                                          }
                                                         },
                                                         child: Container(
                                                           margin: EdgeInsets.fromLTRB(10.w, 8.h, 15.w, 8.h),
@@ -232,7 +272,11 @@ class ChatPage extends HookConsumerWidget {
                                                             children: [
                                                               const Spacer(flex: 12),
                                                               Text(
-                                                                useL10n().clickToPlay,
+                                                                playbackState.value == PlaybackState.stop
+                                                                    ? useL10n().clickToPlay
+                                                                    : playbackState.value == PlaybackState.paused
+                                                                        ? useL10n().clickToResume
+                                                                        : '${useL10n().playbackProgress}:',
                                                                 textAlign: TextAlign.center,
                                                                 style: TextStyle(
                                                                   color: Colors.white,
@@ -247,6 +291,20 @@ class ChatPage extends HookConsumerWidget {
                                                                 Icons.volume_up,
                                                                 color: Colors.white,
                                                                 size: 24.sp,
+                                                              ),
+                                                              SizedBox(
+                                                                width: 3.w,
+                                                              ),
+                                                              Text(
+                                                                playbackState.value == PlaybackState.stop
+                                                                    ? '${recordLength.value}"'
+                                                                    : '${playbackPosition.value} / ${recordLength.value}"',
+                                                                textAlign: TextAlign.center,
+                                                                style: TextStyle(
+                                                                  color: Colors.white,
+                                                                  fontSize: 13.sp,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
                                                               ),
                                                               const Spacer(flex: 10),
                                                               GestureDetector(

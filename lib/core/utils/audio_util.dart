@@ -15,6 +15,7 @@ class AudioUtil {
   static FlutterSoundRecorder? _recorderModule;
   static StreamSubscription<RecordingDisposition>? _recorderSubscription;
   static FlutterSoundPlayer? _playerModule;
+  static StreamSubscription<PlaybackDisposition>? _playerSubscription;
   static int audioLength = 0;
   static String? audioFilePath;
 
@@ -76,6 +77,7 @@ class AudioUtil {
             toFile: audioFilePath,
             audioSource: AudioSource.microphone,
           );
+          // Listen recording progress
           if (progressCallback != null) {
             _recorderSubscription = _recorderModule?.onProgress?.listen(
               (progress) async {
@@ -119,5 +121,93 @@ class AudioUtil {
     } catch (e) {
       Log.d(TAG, 'stopRecorder error: ${e.toString()}');
     }
+  }
+
+  static Future<void> startOrResumePlayer(
+      {required String path,
+      Function(int duration, int position)? progressCallback,
+      Function()? completeCallback}) async {
+    // ignore: constant_identifier_names
+    const String TAG = 'AudioUtil';
+
+    try {
+      if (_playerModule?.isPaused ?? false) {
+        // Resume
+        _playerModule?.resumePlayer();
+      } else if (_playerModule?.isStopped ?? false) {
+        // Start
+        if (await fileExists(path)) {
+          await _playerModule?.startPlayer(
+            fromURI: path,
+            codec: Codec.aacMP4,
+            whenFinished: () async {
+              // stopPlayer();
+              await _playerSubscription?.cancel();
+              if (completeCallback != null) {
+                completeCallback();
+              }
+            },
+          );
+        }
+      }
+      // Listen playing progress
+      if (progressCallback != null) {
+        _playerSubscription = _playerModule?.onProgress?.listen(
+          (progress) async {
+            progressCallback(progress.duration.inSeconds, progress.position.inSeconds);
+            // if (audioLength >= MAX_AUDIO_LENGTH) {
+            //   // Stop audio recording when reach the max length
+            //   Log.d(TAG, 'Stop recording since reach max length');
+            //   await _playerSubscription?.cancel();
+            //   completeCallback != null
+            //       ? await stopRecorder(completeCallback: completeCallback(MAX_AUDIO_LENGTH, audioFilePath ?? ''))
+            //       : await stopRecorder();
+            //   return;
+            // }
+          },
+          cancelOnError: true,
+        );
+      }
+    } catch (e) {
+      Log.d(TAG, 'startOrResumePlayer error: ${e.toString()}');
+      completeCallback != null ? await stopPlayer(completeCallback: completeCallback()) : await stopPlayer();
+    }
+  }
+
+  static Future<void> stopPlayer({Function()? completeCallback}) async {
+    // ignore: constant_identifier_names
+    const String TAG = 'AudioUtil';
+
+    try {
+      await _playerModule?.stopPlayer();
+      await _playerSubscription?.cancel();
+    } catch (e) {
+      Log.d(TAG, 'stopPlayer error: ${e.toString()}');
+    } finally {
+      if (completeCallback != null) {
+        completeCallback();
+      }
+    }
+  }
+
+  static Future<void> pausePlayer({Function()? pauseCallback, Function()? failureCallback}) async {
+    // ignore: constant_identifier_names
+    const String TAG = 'AudioUtil';
+
+    try {
+      await _playerModule?.pausePlayer();
+      if (pauseCallback != null) {
+        pauseCallback();
+      }
+    } catch (e) {
+      Log.d(TAG, 'pausePlayer error: ${e.toString()}');
+      if (failureCallback != null) {
+        failureCallback();
+      }
+    }
+  }
+
+  static Future<bool> fileExists(String path) async {
+    return await File(path).exists();
   }
 }
