@@ -11,6 +11,8 @@ class ChatHiveModel extends HiveObject {
     this.id,
     this.role,
     this.content,
+    this.fileAccessUrl,
+    this.mediaDuration,
     this.type,
     this.createAt,
     this.isSuccess,
@@ -24,19 +26,23 @@ class ChatHiveModel extends HiveObject {
   @HiveField(2)
   String? content;
   @HiveField(3)
-  String? type;
+  String? fileAccessUrl;
   @HiveField(4)
+  int? mediaDuration;
+  @HiveField(5)
+  String? type;
+  @HiveField(6)
   int? createAt;
-  @HiveField(5, defaultValue: false)
+  @HiveField(7, defaultValue: false)
   bool? isSuccess;
-  @HiveField(6, defaultValue: false)
+  @HiveField(8, defaultValue: false)
   bool? isCompleteChatFlag;
-  @HiveField(7)
+  @HiveField(9)
   String? clientUsername;
 
   @override
   String toString() {
-    return '{id: $id, role: $role, content: $content, type: $type, createAt: $createAt, isSuccess: $isSuccess, isCompleteChatFlag: $isCompleteChatFlag, clientUsername: $clientUsername}';
+    return '{id: $id, role: $role, content: $content, fileAccessUrl: $fileAccessUrl, mediaDuration: $mediaDuration, type: $type, createAt: $createAt, isSuccess: $isSuccess, isCompleteChatFlag: $isCompleteChatFlag, clientUsername: $clientUsername}';
   }
 
   // factory ChatHiveModel.fromChat(ChatContextModel chatContextModel) {
@@ -79,19 +85,16 @@ class ChatHiveModel extends HiveObject {
   //     isCompleteChatFlag: chatContextModel.isCompleteChatFlag,
   //   );
   // }
-  factory ChatHiveModel.fromChat(ChatContextModel chatContextModel) =>
-      ChatHiveModel(
+  factory ChatHiveModel.fromChat(ChatContextModel chatContextModel) => ChatHiveModel(
         id: chatContextModel.id,
         role: chatContextModel.role,
-        content: chatContextModel.type == 'image'
-            ? chatContextModel.fileAccessUrl
-            : chatContextModel.content,
+        // content: chatContextModel.type == 'image' ? chatContextModel.fileAccessUrl : chatContextModel.content,
+        content: chatContextModel.content,
+        fileAccessUrl: chatContextModel.fileAccessUrl,
+        mediaDuration: chatContextModel.totalSize,
         type: chatContextModel.type,
         createAt: chatContextModel.createAt,
-        isSuccess:
-            (chatContextModel.status ?? ChatStatus.failure) == ChatStatus.done
-                ? true
-                : false,
+        isSuccess: (chatContextModel.status ?? ChatStatus.failure) == ChatStatus.done ? true : false,
         isCompleteChatFlag: chatContextModel.isCompleteChatFlag,
       );
 }

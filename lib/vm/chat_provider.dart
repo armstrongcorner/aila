@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/db/chat_hive_model.dart';
@@ -16,15 +17,12 @@ import '../core/utils/log.dart';
 import '../m/chat_context_model.dart';
 import '../m/datasources/search_api.dart';
 
-final chatProvider = StateNotifierProvider.autoDispose<ChatsProvider,
-        AsyncValue<List<ChatContextModel>>>(
-    (ref) => ChatsProvider(ref.read(chatLocalDataSourceProvider),
-        ref.read(searchApiProvider), ref.read(sessionManagerProvider)));
+final chatProvider = StateNotifierProvider.autoDispose<ChatsProvider, AsyncValue<List<ChatContextModel>>>((ref) =>
+    ChatsProvider(
+        ref.read(chatLocalDataSourceProvider), ref.read(searchApiProvider), ref.read(sessionManagerProvider)));
 
 class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
-  ChatsProvider(
-      this._chatLocalDataSource, this._searchApi, this._sessionManager)
-      : super(const AsyncData([])) {
+  ChatsProvider(this._chatLocalDataSource, this._searchApi, this._sessionManager) : super(const AsyncData([])) {
     getChatHistory();
   }
 
@@ -46,8 +44,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         return chat;
       }).toList();
 
-      chatHiveList = await _chatLocalDataSource.getChats(
-          username: _sessionManager.getUsername());
+      chatHiveList = await _chatLocalDataSource.getChats(username: _sessionManager.getUsername());
 
       for (var i = (chatHiveList ?? []).length - 1; i >= 0; i--) {
         var item = (chatHiveList ?? [])[i];
@@ -69,8 +66,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
   Future<void> getChatHistory() async {
     try {
       state = const AsyncValue.loading();
-      chatHiveList = await _chatLocalDataSource.getChats(
-          username: _sessionManager.getUsername());
+      chatHiveList = await _chatLocalDataSource.getChats(username: _sessionManager.getUsername());
       final str = StringBuffer('\n');
       for (var i = 0; i < (chatHiveList ?? []).length; i++) {
         var item = (chatHiveList ?? [])[i];
@@ -78,8 +74,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         if (i == ((chatHiveList ?? []).length - 1)) {
           // Last one, need to check complete flag, or compare time to mark complete or not.
           if (!(item.isCompleteChatFlag ?? false)) {
-            if (DateUtil.comppareDateTime((item.createAt ?? 0) * 1000,
-                    DateUtil.getCurrentTimestamp()) >
+            if (DateUtil.comppareDateTime((item.createAt ?? 0) * 1000, DateUtil.getCurrentTimestamp()) >
                 CHAT_COMPLETE_GAP_IN_MINUTES) {
               // Gap longer than 1 hr (60 mins), mark the last chat item to complete
               item.isCompleteChatFlag = true;
@@ -93,11 +88,8 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       }
       Log.d(tag, 'getChats(): ${(chatHiveList ?? []).length}: $str');
       if (mounted) {
-        state = AsyncData(((chatHiveList ?? [])
-                .map((item) => ChatContextModel.fromHive(item)))
-            .toList()
-            .reversed
-            .toList());
+        state =
+            AsyncData(((chatHiveList ?? []).map((item) => ChatContextModel.fromHive(item))).toList().reversed.toList());
       }
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
@@ -121,18 +113,24 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       state = AsyncData(chatList);
       // 2) Send the chat to API
       // 2-1) Upload the images if existed
-      List<Future<Map<int, UploadContentResultModel?>>> taskList = [];
+      List<Future<Map<int, dynamic>>> taskList = [];
       for (var i = 0; i < chatList.length; i++) {
         final chatModel = chatList[i];
-        if (chatModel.type == 'image' &&
-            chatModel.status == ChatStatus.uploading) {
+
+        if (chatModel.type == 'audio' && chatModel.status == ChatStatus.sending) {
+          // Audio part
+          taskList.add(Future(() async {
+            final audioFile = File(chatModel.fileAccessUrl ?? '');
+            SearchContentResultModel? searchContentResultModel = await _searchApi.uploadAudio(file: audioFile);
+            return {i: searchContentResultModel};
+          }));
+        } else if (chatModel.type == 'image' && chatModel.status == ChatStatus.uploading) {
+          // Image part
           taskList.add(Future(() async {
             // The image file from asset entity
             AssetEntity assetEntity = chatModel.content;
-            final croppedImageFile =
-                await ImageUtil.resizeImage(imageEntity: assetEntity);
-            UploadContentResultModel? uploadContentResultModel =
-                await _searchApi.upload(
+            final croppedImageFile = await ImageUtil.resizeImage(imageEntity: assetEntity);
+            UploadContentResultModel? uploadContentResultModel = await _searchApi.upload(
               file: croppedImageFile, //(await assetEntity.file) ?? File(''),
               onSendProgress: (sent, total) async {
                 chatList[i] = chatModel.copyWith(receivedSize: sent);
@@ -148,23 +146,31 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       }
 
       Future.wait(taskList).then((uploadResultList) async {
-        final includeImg =
-            chatList.where((element) => element.type == 'image').isNotEmpty;
-        // 2-2) Using the returned image url as the chat context list
+        final includeImg = chatList.where((element) => element.type == 'image').isNotEmpty;
+
         for (var uploadResultMap in uploadResultList) {
-          chatList[uploadResultMap.keys.first] =
-              chatList[uploadResultMap.keys.first].copyWith(
-                  fileAccessUrl:
-                      (uploadResultMap.values.first?.isSuccess ?? false)
-                          ? uploadResultMap.values.first?.value ?? ''
-                          : '');
+          String responseContent = '';
+          var uploadResult = uploadResultMap.values.first;
+          if (uploadResult is UploadContentResultModel?) {
+            // 2-2-1) Using the returned image url as the chat context list
+            responseContent = (uploadResult?.isSuccess ?? false) ? uploadResult?.value ?? '' : '';
+            chatList[uploadResultMap.keys.first] = chatList[uploadResultMap.keys.first].copyWith(
+              fileAccessUrl: responseContent,
+            );
+          } else if (uploadResult is SearchContentResultModel?) {
+            // 2-2-2) If not image upload that should be audio file so far, the response should be the speech to text content
+            responseContent =
+                (uploadResult?.isSuccess ?? false) ? uploadResult?.value?.choices?.first.message?.content ?? '' : '';
+            chatList[uploadResultMap.keys.first] = chatList[uploadResultMap.keys.first].copyWith(
+              content: responseContent,
+            );
+          }
         }
         // 2-3) Make the chat context (chat list) which would be sent to gpt.
         // It should <= MAX_CHAT_DEPTH and stop at the chat complete flag
         List<ChatContextModel> chatContextList = [];
         for (var i = 0; (i < chatList.length && i < MAX_CHAT_DEPTH); i++) {
-          if (!(chatList[i].isCompleteChatFlag ?? false) &&
-              chatList[i].status != ChatStatus.waiting) {
+          if (!(chatList[i].isCompleteChatFlag ?? false) && chatList[i].status != ChatStatus.waiting) {
             chatContextList.add(chatList[i]);
           } else if (chatList[i].isCompleteChatFlag ?? false) {
             break;
@@ -185,9 +191,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
 
         // 3) Show and local cache the search result
         chatList.removeAt(0); // Remove the gpt waiting chat item
-        if (resultModel != null &&
-            (resultModel.isSuccess ?? false) &&
-            isNotEmptyList(resultModel.value?.choices)) {
+        if (resultModel != null && (resultModel.isSuccess ?? false) && isNotEmptyList(resultModel.value?.choices)) {
           final theSearchResult = resultModel.value?.choices?[0].message;
           // 3-1) Local cache the user sent content
           chatList = chatList.reversed
@@ -197,10 +201,8 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
                     status: ChatStatus.done,
                     id: resultModel.value?.id,
                   );
-                  ChatHiveModel convertedUserSentHive =
-                      ChatHiveModel.fromChat(chatContextModel);
-                  convertedUserSentHive.clientUsername =
-                      _sessionManager.getUsername();
+                  ChatHiveModel convertedUserSentHive = ChatHiveModel.fromChat(chatContextModel);
+                  convertedUserSentHive.clientUsername = _sessionManager.getUsername();
                   _chatLocalDataSource.addChat(convertedUserSentHive);
                 }
 
@@ -211,14 +213,15 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
               .toList();
           // 3-2) And cache the search result
           _chatLocalDataSource.addChat(ChatHiveModel(
-              id: resultModel.value?.id,
-              role: theSearchResult?.role,
-              content: theSearchResult?.content,
-              type: 'text',
-              createAt: resultModel.value?.gptResponseTimeUTC,
-              isSuccess: true,
-              isCompleteChatFlag: false,
-              clientUsername: _sessionManager.getUsername()));
+            id: resultModel.value?.id,
+            role: theSearchResult?.role,
+            content: theSearchResult?.content,
+            type: 'text',
+            createAt: resultModel.value?.gptResponseTimeUTC,
+            isSuccess: true,
+            isCompleteChatFlag: false,
+            clientUsername: _sessionManager.getUsername(),
+          ));
           // 3-3) Show the search result
           chatList.insert(
               0,
@@ -252,8 +255,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
   Future<void> clearChatHistory() async {
     try {
       state = const AsyncValue.loading();
-      await _chatLocalDataSource.deleteChats(
-          username: _sessionManager.getUsername());
+      await _chatLocalDataSource.deleteChats(username: _sessionManager.getUsername());
 
       if (mounted) {
         state = const AsyncData([]);

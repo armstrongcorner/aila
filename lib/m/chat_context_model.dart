@@ -22,8 +22,7 @@ class ChatContextModel with _$ChatContextModel {
     @JsonKey(name: 'isCompleteChatFlag') bool? isCompleteChatFlag,
   }) = _ChatContextModel;
 
-  factory ChatContextModel.fromJson(Map<String, dynamic> json) =>
-      _$ChatContextModelFromJson(json);
+  factory ChatContextModel.fromJson(Map<String, dynamic> json) => _$ChatContextModelFromJson(json);
 
   // factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) {
   //   // Image string from hive, need to turn to map list with image url
@@ -70,18 +69,17 @@ class ChatContextModel with _$ChatContextModel {
   //   );
   // }
 
-  factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) =>
-      ChatContextModel(
+  factory ChatContextModel.fromHive(ChatHiveModel chatHiveModel) => ChatContextModel(
         id: chatHiveModel.id,
         role: chatHiveModel.role,
         content: chatHiveModel.content,
         type: chatHiveModel.type,
-        fileAccessUrl:
-            chatHiveModel.type == 'image' ? chatHiveModel.content : null,
+        // fileAccessUrl:
+        //     chatHiveModel.type == 'image' ? chatHiveModel.content : null,
+        fileAccessUrl: chatHiveModel.fileAccessUrl,
+        totalSize: chatHiveModel.mediaDuration,
         createAt: chatHiveModel.createAt,
-        status: (chatHiveModel.isSuccess ?? false)
-            ? ChatStatus.done
-            : ChatStatus.failure,
+        status: (chatHiveModel.isSuccess ?? false) ? ChatStatus.done : ChatStatus.failure,
         isCompleteChatFlag: chatHiveModel.isCompleteChatFlag,
       );
 }

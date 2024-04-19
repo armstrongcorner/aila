@@ -8,17 +8,14 @@ import '../chat_context_model.dart';
 import '../search_content_result_model.dart';
 import '../upload_content_result_model.dart';
 
-final searchApiProvider = Provider.autoDispose<SearchApi>(
-    (ref) => SearchApi(apiClient: ref.read(apiClientProvider)));
+final searchApiProvider = Provider.autoDispose<SearchApi>((ref) => SearchApi(apiClient: ref.read(apiClientProvider)));
 
 class SearchApi {
   final ApiClient apiClient;
   SearchApi({required this.apiClient});
 
-  List<Map<String, dynamic>> buildUplinkMessages(
-      List<ChatContextModel> chatList) {
-    final includeImg =
-        chatList.where((element) => element.type == 'image').isNotEmpty;
+  List<Map<String, dynamic>> buildUplinkMessages(List<ChatContextModel> chatList) {
+    final includeImg = chatList.where((element) => element.type == 'image').isNotEmpty;
     if (includeImg) {
       // Image
       List<Map<String, dynamic>> messageList = [];
@@ -38,8 +35,7 @@ class SearchApi {
           };
         }
 
-        if ((chatContextModel.role ?? '') != lastRole ||
-            (chatContextModel.id ?? '') != lastId) {
+        if ((chatContextModel.role ?? '') != lastRole || (chatContextModel.id ?? '') != lastId) {
           contentList = [contentItem];
           messageList.add({
             'role': chatContextModel.role ?? '',
@@ -72,8 +68,7 @@ class SearchApi {
     }
   }
 
-  Future<SearchContentResultModel?> search(List<ChatContextModel> chatList,
-      {String? model}) async {
+  Future<SearchContentResultModel?> search(List<ChatContextModel> chatList, {String? model}) async {
     var res = await apiClient.post(
       '/chat/balance/complete',
       {
@@ -88,9 +83,7 @@ class SearchApi {
   }
 
   Future<UploadContentResultModel?> upload(
-      {required File file,
-      String? folder,
-      Function(int sent, int total)? onSendProgress}) async {
+      {required File file, String? folder, Function(int sent, int total)? onSendProgress}) async {
     var res = await apiClient.uploadFiles(
       '/storage/intensivechatdev/${folder ?? 'dev'}',
       [file.path],
@@ -100,5 +93,16 @@ class SearchApi {
     );
     var uploadResultModel = UploadContentResultModel.fromJson(res);
     return uploadResultModel;
+  }
+
+  Future<SearchContentResultModel?> uploadAudio({required File file}) async {
+    var res = await apiClient.uploadFiles(
+      '/chat/balance/whisper',
+      [file.path],
+      fileFieldName: 'audioFile',
+      myBaseUrl: CHAT_URL,
+    );
+    var searchResultModel = SearchContentResultModel.fromJson(res);
+    return searchResultModel;
   }
 }

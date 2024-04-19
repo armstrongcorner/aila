@@ -10,6 +10,12 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+enum PlaybackState {
+  stop,
+  paused,
+  playing,
+}
+
 class AudioUtil {
   static AudioUtil? _singleton;
   static FlutterSoundRecorder? _recorderModule;
@@ -69,7 +75,8 @@ class AudioUtil {
         if (isGranted) {
           // Define the record file path
           Directory tempDir = await getTemporaryDirectory();
-          audioFilePath = '${tempDir.path}/audio-${DateTime.now().millisecondsSinceEpoch}${ext[Codec.aacMP4.index]}';
+          // audioFilePath = '${tempDir.path}/audio-${DateTime.now().millisecondsSinceEpoch}${ext[Codec.aacMP4.index]}';
+          audioFilePath = '${tempDir.path}/audio-${DateTime.now().millisecondsSinceEpoch}.m4a';
           // Start to record audio
           Log.d(TAG, 'File should be saved at: $audioFilePath');
           await _recorderModule?.startRecorder(
@@ -205,6 +212,15 @@ class AudioUtil {
         failureCallback();
       }
     }
+  }
+
+  static PlaybackState getPlaybackState() {
+    if (_playerModule?.isPlaying ?? false) {
+      return PlaybackState.playing;
+    } else if (_playerModule?.isPaused ?? false) {
+      return PlaybackState.paused;
+    }
+    return PlaybackState.stop;
   }
 
   static Future<bool> fileExists(String path) async {

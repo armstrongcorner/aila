@@ -19,12 +19,6 @@ import '../../vm/chat_provider.dart';
 import 'chat_audio_record_overlay.dart';
 import 'chat_content.dart';
 
-enum PlaybackState {
-  stop,
-  paused,
-  playing,
-}
-
 class ChatPage extends HookConsumerWidget {
   const ChatPage({super.key});
 
@@ -170,8 +164,11 @@ class ChatPage extends HookConsumerWidget {
                                               fontSize: 15,
                                             ),
                                             onSubmitted: (value) {
-                                              sendUserText(ref, userTextController.text, finalAssetList);
+                                              sendUserText(ref, userTextController.text, finalAssetList,
+                                                  recordFilePath.value, recordLength.value, toggleMicInput.value);
                                               userTextController.clear();
+                                              recordFilePath.value = '';
+                                              recordLength.value = 0;
                                             },
                                           )
                                         : Row(
@@ -413,8 +410,11 @@ class ChatPage extends HookConsumerWidget {
                                 child: const Icon(Icons.send),
                               ),
                               onTap: () {
-                                sendUserText(ref, userTextController.text, finalAssetList);
+                                sendUserText(ref, userTextController.text, finalAssetList, recordFilePath.value,
+                                    recordLength.value, toggleMicInput.value);
                                 userTextController.clear();
+                                recordFilePath.value = '';
+                                recordLength.value = 0;
                               },
                             ),
                           ],
@@ -485,11 +485,12 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Future<void> sendUserText(WidgetRef ref, String userText, ValueNotifier<List<AssetEntity>> finalAssetList) async {
+  Future<void> sendUserText(WidgetRef ref, String userText, ValueNotifier<List<AssetEntity>> finalAssetList,
+      String recordFilePath, int recordDuration, bool microphoneMode) async {
     final userChatList = <ChatContextModel>[];
 
-    if (isNotEmpty(userText)) {
-      // Send user typing content first
+    if (isNotEmpty(userText) && !microphoneMode) {
+      // Send user typing content first if not in microphone mode
       final userChat = ChatContextModel(
         role: 'user',
         content: userText,
@@ -500,6 +501,22 @@ class ChatPage extends HookConsumerWidget {
       );
       userChatList.insert(0, userChat);
     }
+
+    if (isNotEmpty(recordFilePath) && microphoneMode) {
+      // Send recorded audio file first if in microphone mode
+      final userChat = ChatContextModel(
+        role: 'user',
+        content: recordFilePath,
+        fileAccessUrl: recordFilePath,
+        type: 'audio',
+        totalSize: recordDuration, // total size here means the record duration
+        createAt: DateUtil.getCurrentTimestamp() ~/ 1000,
+        status: ChatStatus.sending,
+        isCompleteChatFlag: false,
+      );
+      userChatList.insert(0, userChat);
+    }
+
     // Send user selected image
     for (var i = 0; i < finalAssetList.value.length; i++) {
       var userImage = ChatContextModel(
