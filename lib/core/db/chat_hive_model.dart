@@ -88,8 +88,8 @@ class ChatHiveModel extends HiveObject {
   factory ChatHiveModel.fromChat(ChatContextModel chatContextModel) => ChatHiveModel(
         id: chatContextModel.id,
         role: chatContextModel.role,
-        // content: chatContextModel.type == 'image' ? chatContextModel.fileAccessUrl : chatContextModel.content,
-        content: chatContextModel.content,
+        content: chatContextModel.type == 'image' ? chatContextModel.fileAccessUrl : chatContextModel.content,
+        // content: chatContextModel.content,
         fileAccessUrl: chatContextModel.fileAccessUrl,
         mediaDuration: chatContextModel.totalSize,
         type: chatContextModel.type,
