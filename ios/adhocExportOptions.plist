@@ -10,8 +10,8 @@
 		<string>ad-hoc</string>
 		<key>provisioningProfiles</key>
 		<dict>
-			<key>com.test.aila</key>
-			<string>aila_adhoc</string>
+			<key>com.everbridge.enterprise.dev</key>
+			<string>Enterprise Dev(adhoc)</string>
 		</dict>
 		<key>signingCertificate</key>
 		<string>iPhone Distribution</string>
@@ -20,7 +20,7 @@
 		<key>stripSwiftSymbols</key>
 		<true />
 		<key>teamID</key>
-		<string>S7HHR6BXA6</string>
+		<string>4H3LPY68H3</string>
 		<key>thinning</key>
 		<string>&lt;none&gt;</string>
 	</dict>
