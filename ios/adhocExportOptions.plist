@@ -10,17 +10,19 @@
 		<string>ad-hoc</string>
 		<key>provisioningProfiles</key>
 		<dict>
-			<key>com.everbridge.enterprise.dev</key>
-			<string>Enterprise Dev(adhoc)</string>
+			<key>au.com.matrixthoughts.sidu</key>
+			<string>sidu_adhoc</string>
 		</dict>
 		<key>signingCertificate</key>
-		<string>iPhone Distribution</string>
+		<string>Apple Distribution</string>
 		<key>signingStyle</key>
 		<string>manual</string>
 		<key>stripSwiftSymbols</key>
 		<true />
 		<key>teamID</key>
-		<string>4H3LPY68H3</string>
+		<string>DXL5PNKGFP</string>
+		<key>uploadBitcode</key>
+		<false/>
 		<key>thinning</key>
 		<string>&lt;none&gt;</string>
 	</dict>

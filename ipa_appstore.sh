@@ -4,4 +4,4 @@ else
     flutter build ipa --build-number=$1 --export-options-plist=ios/appstoreExportOptions.plist --no-tree-shake-icons
 fi
 
-mv build/ios/ipa/aila.ipa ~/Desktop/aila_appstore.ipa
+mv build/ios/ipa/aila.ipa ~/Desktop/sidu_appstore.ipa
