@@ -24,8 +24,7 @@ class RegisterPage extends HookConsumerWidget {
     final usernameNode = useFocusNode();
     final usernameController = useTextEditingController();
     final lastUsername = useState('');
-    final isDisplayClearUsernameBtn =
-        useState(isNotEmpty(usernameController.text));
+    final isDisplayClearUsernameBtn = useState(isNotEmpty(usernameController.text));
     final passwordController = useTextEditingController();
     final confirmController = useTextEditingController();
 
@@ -43,19 +42,16 @@ class RegisterPage extends HookConsumerWidget {
       },
     );
     final RequestState<AuthResultModel?> authState = ref.watch(authProvider);
-    final authloading =
-        authState == const RequestState<AuthResultModel?>.loading();
+    final authloading = authState == const RequestState<AuthResultModel?>.loading();
 
     useEffect(() {
       usernameNode.requestFocus();
       usernameNode.addListener(() {
-        checkAccountAvailable(
-            ref, usernameNode, usernameController, lastUsername);
+        checkAccountAvailable(ref, usernameNode, usernameController, lastUsername);
       });
       return () {
         usernameNode.removeListener(() {
-          checkAccountAvailable(
-              ref, usernameNode, usernameController, lastUsername);
+          checkAccountAvailable(ref, usernameNode, usernameController, lastUsername);
         });
       };
     }, []);
@@ -104,13 +100,11 @@ class RegisterPage extends HookConsumerWidget {
                       autocorrect: false,
                       readOnly: checkUserState.isLoading || authloading,
                       onChanged: (value) {
-                        isDisplayClearUsernameBtn.value =
-                            isNotEmpty(usernameController.text);
+                        isDisplayClearUsernameBtn.value = isNotEmpty(usernameController.text);
                       },
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText:
-                            useL10n(theContext: context).usernameOrMobile,
+                        labelText: useL10n(theContext: context).usernameHint,
                         labelStyle: const TextStyle(color: Colors.grey),
                         border: InputBorder.none,
                         prefixIcon: const Padding(
@@ -120,14 +114,11 @@ class RegisterPage extends HookConsumerWidget {
                             color: Colors.black,
                           ),
                         ),
-                        suffixIcon: isDisplayClearUsernameBtn.value &&
-                                !checkUserState.isLoading &&
-                                !authloading
+                        suffixIcon: isDisplayClearUsernameBtn.value && !checkUserState.isLoading && !authloading
                             ? IconButton(
                                 onPressed: () {
                                   usernameController.clear();
-                                  isDisplayClearUsernameBtn.value =
-                                      isNotEmpty(usernameController.text);
+                                  isDisplayClearUsernameBtn.value = isNotEmpty(usernameController.text);
                                 },
                                 icon: const Icon(
                                   Icons.highlight_off,
@@ -137,8 +128,7 @@ class RegisterPage extends HookConsumerWidget {
                             : checkUserState.isLoading
                                 ? const CircularProgressIndicator.adaptive()
                                 : null,
-                        contentPadding:
-                            EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
+                        contentPadding: EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
                       ),
                     ),
                   ),
@@ -170,8 +160,7 @@ class RegisterPage extends HookConsumerWidget {
                       Icons.highlight_off,
                       color: Colors.grey,
                     ),
-                    placeholderStr:
-                        useL10n(theContext: context).confirmPassword,
+                    placeholderStr: useL10n(theContext: context).confirmPassword,
                     isPasswordMask: true,
                     readOnly: checkUserState.isLoading || authloading,
                   ),
@@ -182,8 +171,7 @@ class RegisterPage extends HookConsumerWidget {
                     height: 40.h,
                     child: WSLoadingButton(
                       onPressed: () async {
-                        await checkForm(context, ref, usernameController,
-                            passwordController, confirmController);
+                        await checkForm(context, ref, usernameController, passwordController, confirmController);
                       },
                       loading: checkUserState.isLoading || authloading,
                       child: Center(
@@ -207,49 +195,34 @@ class RegisterPage extends HookConsumerWidget {
     );
   }
 
-  Future<void> checkAccountAvailable(
-      WidgetRef ref,
-      FocusNode usernameNode,
-      TextEditingController usernameController,
+  Future<void> checkAccountAvailable(WidgetRef ref, FocusNode usernameNode, TextEditingController usernameController,
       ValueNotifier lastUsername) async {
     if (!usernameNode.hasFocus) {
-      if (lastUsername.value != usernameController.text &&
-          isNotEmpty(usernameController.text)) {
-        await ref
-            .read(checkUserProvider.notifier)
-            .checkUserCanRegister(usernameController.text);
+      if (lastUsername.value != usernameController.text && isNotEmpty(usernameController.text)) {
+        await ref.read(checkUserProvider.notifier).checkUserCanRegister(usernameController.text);
       }
       lastUsername.value = usernameController.text;
     }
   }
 
-  Future<void> checkForm(
-      BuildContext context,
-      WidgetRef ref,
-      TextEditingController usernameController,
-      TextEditingController passwordController,
-      TextEditingController confirmController) async {
+  Future<void> checkForm(BuildContext context, WidgetRef ref, TextEditingController usernameController,
+      TextEditingController passwordController, TextEditingController confirmController) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (passwordController.text == confirmController.text) {
       // Register
-      final res = await ref
-          .read(authProvider.notifier)
-          .register(usernameController.text, passwordController.text);
+      final res = await ref.read(authProvider.notifier).register(usernameController.text, passwordController.text);
       res.when(
         idle: () {},
         loading: () {},
         success: (AuthResultModel? auth) {
-          if ((auth?.isSuccess ?? false) &&
-              auth?.value != null &&
-              isNotEmpty(auth?.value?.token)) {
+          if ((auth?.isSuccess ?? false) && auth?.value != null && isNotEmpty(auth?.value?.token)) {
             SessionManager sessionManager = ref.read(sessionManagerProvider);
             sessionManager.setToken(auth?.value?.token ?? '');
             sessionManager.setUsername(usernameController.text.trim());
 
             final appRoute = ref.read(appRouterProvider);
             appRoute.go(RouteURL.chat);
-          } else if (!(auth?.isSuccess ?? false) &&
-              isNotEmpty(auth?.failureReason)) {
+          } else if (!(auth?.isSuccess ?? false) && isNotEmpty(auth?.failureReason)) {
             WSToast.show(auth?.failureReason ?? '');
           } else {
             WSToast.show(useL10n(theContext: ref.context).registerFailure);
@@ -257,8 +230,7 @@ class RegisterPage extends HookConsumerWidget {
         },
         error: (Object error, StackTrace stackTrace) {
           FocusManager.instance.primaryFocus?.unfocus();
-          handleException(
-              GeneralException.toGeneralException(error as Exception));
+          handleException(GeneralException.toGeneralException(error as Exception));
         },
       );
     } else {

@@ -1,5 +1,6 @@
 import 'package:aila/v/splash_screen.dart';
 import 'package:aila/v/user/login_screen.dart';
+import 'package:aila/v/user/register_email_verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import '../../app.dart';
 import '../../v/chat/chat_screen.dart';
 import '../../v/common_widgets/toast.dart';
 import '../../v/setting/setting_screen.dart';
+import '../../v/user/register_complete_password_screen.dart';
 import '../../v/user/register_screen.dart';
 import '../use_l10n.dart';
 import 'navigation_service.dart';
@@ -17,6 +19,8 @@ class RouteURL {
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String registerEmail = '/registerEmail';
+  static const String registerPassword = '/registerPassword';
   static const String chat = '/chat';
   static const String setting = '/setting';
   static const String url = '/url';
@@ -45,6 +49,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: RouteURL.registerEmail,
+        builder: (context, state) {
+          return RegisterEmailVerificationScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteURL.registerPassword,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final username = extra?['username'] as String?;
+          return RegisterCompletePasswordScreen(username: username ?? '');
+        },
+      ),
+      GoRoute(
         path: RouteURL.chat,
         builder: (context, state) {
           return const ChatPage();
@@ -70,12 +88,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // ...preferencesRoute,
     ],
     redirect: (BuildContext context, GoRouterState state) async {
-      if (tokenExpiredState.value &&
-          state.location != RouteURL.login &&
-          state.location != RouteURL.register) {
+      if (tokenExpiredState.value && state.location != RouteURL.login && state.location != RouteURL.register) {
         tokenExpiredState.value = false;
-        WSToast.show(useL10n(theContext: context).tokenExpireWarning,
-            gravity: ToastGravity.BOTTOM);
+        WSToast.show(useL10n(theContext: context).tokenExpireWarning, gravity: ToastGravity.BOTTOM);
         return RouteURL.login;
       }
       return null;

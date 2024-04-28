@@ -47,7 +47,7 @@ class ApiClient {
     }
 
     if (!isAvailableNetwork) {
-      throw GeneralException(CODE_NETWORK_EXCEPTION, getErrorMessage(CODE_NETWORK_EXCEPTION));
+      throw GeneralException(code: CODE_NETWORK_EXCEPTION, message: getErrorMessage(CODE_NETWORK_EXCEPTION));
     }
   }
 
@@ -83,7 +83,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -129,7 +129,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -168,7 +168,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -208,7 +208,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -248,7 +248,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -298,7 +298,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -366,7 +366,7 @@ class ApiClient {
     } on TimeoutException {
       rethrow;
     } on Exception {
-      throw GeneralException(CODE_SERVICE_UNAVAILABLE, getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
   }
 
@@ -379,7 +379,9 @@ class ApiClient {
 
     headers['x-app-os'] = appOS;
     headers['x-app-version'] = appVersion;
-    headers['Authorization'] = 'Bearer $token';
+    if (isNotEmpty(token)) {
+      headers['Authorization'] = 'Bearer $token';
+    }
     headers['Accept'] = 'application/json';
     headers['Content-Type'] = 'application/json';
     if (newHeaders != null) {

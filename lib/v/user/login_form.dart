@@ -24,13 +24,11 @@ class LoginForm extends HookConsumerWidget {
     final sessionManager = ref.read(sessionManagerProvider);
     // final usernameNode = useFocusNode();
     // final passwordNode = useFocusNode();
-    final usernameController =
-        useTextEditingController(text: sessionManager.getUsername());
+    final usernameController = useTextEditingController(text: sessionManager.getUsername());
     final passwordController = useTextEditingController();
 
     final RequestState<AuthResultModel?> loginState = ref.watch(authProvider);
-    final loading =
-        loginState == const RequestState<AuthResultModel?>.loading();
+    final loading = loginState == const RequestState<AuthResultModel?>.loading();
 
     return Form(
       child: SingleChildScrollView(
@@ -59,7 +57,7 @@ class LoginForm extends HookConsumerWidget {
                   readOnly: loading,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: useL10n(theContext: context).usernameOrMobile,
+                    labelText: useL10n(theContext: context).usernameHint,
                     labelStyle: const TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     prefixIcon: const Padding(
@@ -80,8 +78,7 @@ class LoginForm extends HookConsumerWidget {
                             ),
                           )
                         : null,
-                    contentPadding:
-                        EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
+                    contentPadding: EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
                   ),
                 ),
               ),
@@ -117,12 +114,10 @@ class LoginForm extends HookConsumerWidget {
                             ),
                           )
                         : null,
-                    contentPadding:
-                        EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
+                    contentPadding: EdgeInsets.fromLTRB(40.w, 10.h, -40.w, 10.h),
                   ),
                   onFieldSubmitted: (_) async {
-                    await checkForm(
-                        context, ref, usernameController, passwordController);
+                    await checkForm(context, ref, usernameController, passwordController);
                   },
                 ),
               ),
@@ -132,7 +127,7 @@ class LoginForm extends HookConsumerWidget {
                 child: TextButton(
                   onPressed: () {
                     final appRouter = ref.read(appRouterProvider);
-                    appRouter.push(RouteURL.register);
+                    appRouter.push(RouteURL.registerEmail);
                   },
                   child: Text(
                     useL10n(theContext: context).registerEntryBtn,
@@ -148,8 +143,7 @@ class LoginForm extends HookConsumerWidget {
                 height: 40.h,
                 child: WSLoadingButton(
                   onPressed: () async {
-                    await checkForm(
-                        context, ref, usernameController, passwordController);
+                    await checkForm(context, ref, usernameController, passwordController);
                   },
                   loading: loading,
                   child: Center(
@@ -187,8 +181,7 @@ class LoginForm extends HookConsumerWidget {
     // passwordFocus.unfocus();
 
     if (formValidate(username, password)) {
-      final RequestState<AuthResultModel?> res =
-          await ref.read(authProvider.notifier).login(username, password);
+      final RequestState<AuthResultModel?> res = await ref.read(authProvider.notifier).login(username, password);
       res.when(
         idle: () {},
         loading: () {},
@@ -200,21 +193,17 @@ class LoginForm extends HookConsumerWidget {
             await sessionManager.setPassword(password);
 
             appRouter.go(RouteURL.chat);
-          } else if (!(auth?.isSuccess ?? false) &&
-              isNotEmpty(auth?.failureReason)) {
-            WSToast.show(auth?.failureReason ?? '',
-                gravity: ToastGravity.BOTTOM);
+          } else if (!(auth?.isSuccess ?? false) && isNotEmpty(auth?.failureReason)) {
+            WSToast.show(auth?.failureReason ?? '', gravity: ToastGravity.BOTTOM);
           }
         },
         error: (Object error, StackTrace stackTrace) {
           FocusManager.instance.primaryFocus?.unfocus();
-          handleException(
-              GeneralException.toGeneralException(error as Exception));
+          handleException(GeneralException.toGeneralException(error as Exception));
         },
       );
     } else {
-      WSToast.show(
-          '${useL10n(theContext: context).usernameEmptyErr}\n${useL10n(theContext: context).passwordEmptyErr}',
+      WSToast.show('${useL10n(theContext: context).usernameEmptyErr}\n${useL10n(theContext: context).passwordEmptyErr}',
           gravity: ToastGravity.BOTTOM);
     }
   }

@@ -34,7 +34,7 @@ const String CHAT_URL = 'https://intensiveconversedev.azurewebsites.net/api';
 const String CODE_OK = '200';
 const String CODE_SERVICE_UNAVAILABLE = '0';
 const String CODE_NETWORK_EXCEPTION = '4444';
-const String CODE_INVALI_OPERATION = '400';
+const String CODE_INVALID_OPERATION = '400';
 const String CODE_NETWORK_TIMEOUT = '504';
 
 /*
@@ -42,6 +42,7 @@ const String CODE_NETWORK_TIMEOUT = '504';
  */
 const int USER_DEFAULT_TOKEN_DURATION_IN_MIN = 60 * 24 * 10;
 const String USER_DEFAULT_ROLE = 'User';
+const int RESEND_VERI_CODE_COUNTDOWN_IN_SEC = 60;
 /*
  * Chat settings
  */

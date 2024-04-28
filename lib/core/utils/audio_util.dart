@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:aila/core/constant.dart';
-import 'package:aila/core/utils/etc_util.dart';
+import 'package:aila/core/utils/misc_util.dart';
 import 'package:aila/core/utils/log.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
