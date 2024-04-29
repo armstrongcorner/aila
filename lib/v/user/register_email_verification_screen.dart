@@ -10,31 +10,17 @@ import '../../core/general_exception.dart';
 import '../../core/route/app_route.dart';
 import '../../core/use_l10n.dart';
 import '../../core/utils/string_util.dart';
-import '../../m/auth_result_model.dart';
 import '../../m/user_info_result_model.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
 import '../common_widgets/toast.dart';
 
+Timer? _timer;
+var countDownSec = RESEND_VERI_CODE_COUNTDOWN_IN_SEC;
+
 class RegisterEmailVerificationScreen extends HookConsumerWidget {
-  RegisterEmailVerificationScreen({super.key});
-
-  Timer? _timer;
-
-  void startCountdownTimer({required int initCountDownSec}) {
-    int countdownSec = initCountDownSec;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (countdownSec < 2) {
-        // setVeriCodeBtnTitle('获取验证码');
-        countdownSec = 0;
-        _timer!.cancel();
-      } else {
-        countdownSec--;
-        // setVeriCodeBtnTitle('$countdownSec秒后获取');
-      }
-    });
-  }
+  const RegisterEmailVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,10 +30,32 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
 
     final vericodeNode = useFocusNode();
     final vericodeController = useTextEditingController();
-    final resendCountDownSec = useState(RESEND_VERI_CODE_COUNTDOWN_IN_SEC);
+    final resendCountDownSec = useState(countDownSec);
 
-    final sendEmailState = ref.watch(requestEmailProvider);
+    // final sendEmailState = ref.watch(requestEmailProvider);
+    final isSendEmailLoading = useState(false);
     final verificationState = ref.watch(emailVerificationProvider);
+
+    useEffect(() {
+      // Continue the timer if last exit not finished
+      if (!(_timer?.isActive ?? false) && countDownSec < RESEND_VERI_CODE_COUNTDOWN_IN_SEC) {
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          countDownSec = countDownSec - 1;
+          resendCountDownSec.value = countDownSec;
+          if (resendCountDownSec.value < 1) {
+            _timer!.cancel();
+            countDownSec = RESEND_VERI_CODE_COUNTDOWN_IN_SEC;
+            resendCountDownSec.value = RESEND_VERI_CODE_COUNTDOWN_IN_SEC;
+          }
+        });
+      }
+      // Pause the timer when dispose
+      return () {
+        if (_timer?.isActive ?? false) {
+          _timer?.cancel();
+        }
+      };
+    }, const []);
 
     return Container(
       color: WSColor.primaryBgColor,
@@ -91,7 +99,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                       focusNode: emailNode,
                       enableSuggestions: false,
                       autocorrect: false,
-                      readOnly: sendEmailState.isLoading || verificationState.isLoading,
+                      readOnly: isSendEmailLoading.value || verificationState.isLoading,
                       onChanged: (value) {
                         isDisplayClearEmailBtn.value = isNotEmpty(emailController.text);
                       },
@@ -114,14 +122,17 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                           onPressed: () async {
                             if (resendCountDownSec.value == RESEND_VERI_CODE_COUNTDOWN_IN_SEC) {
                               _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-                                resendCountDownSec.value = resendCountDownSec.value - 1;
+                                countDownSec = countDownSec - 1;
+                                resendCountDownSec.value = countDownSec;
                                 if (resendCountDownSec.value < 1) {
                                   _timer!.cancel();
+                                  countDownSec = RESEND_VERI_CODE_COUNTDOWN_IN_SEC;
                                   resendCountDownSec.value = RESEND_VERI_CODE_COUNTDOWN_IN_SEC;
                                 }
                               });
 
-                              await requestEmailVerification(context, ref, emailController.text.trim(), sendEmailState);
+                              await requestEmailVerification(
+                                  context, ref, emailController.text.trim(), isSendEmailLoading);
                             }
                           },
                           style: TextButton.styleFrom(
@@ -218,7 +229,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                       onPressed: () async {
                         // Go verify the code
                         await goVerify(context, ref, emailController.text.trim(), vericodeController.text.trim(),
-                            sendEmailState, verificationState);
+                            isSendEmailLoading, verificationState);
                       },
                       loading: verificationState.isLoading,
                       child: Center(
@@ -243,22 +254,35 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
 
   // Request to send verification code by email
   Future<void> requestEmailVerification(
-      BuildContext context, WidgetRef ref, String email, AsyncValue<AuthResultModel?> sendEmailState) async {
+      BuildContext context, WidgetRef ref, String email, ValueNotifier<bool> isSendEmailLoading) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (isNotEmpty(email)) {
-      await ref.read(requestEmailProvider.notifier).requestEmailVerification(email);
-      sendEmailState.when(
-        loading: () {},
-        data: (AuthResultModel? auth) {
-          if (!(auth?.isSuccess ?? false)) {
-            WSToast.show(auth?.failureReason ?? getErrorMessage(CODE_INVALID_OPERATION));
+      if (isContain(input: email, onlyEmail: true)) {
+        // await ref.read(requestEmailProvider.notifier).requestEmailVerification(email);
+        //
+        // sendEmailState.when(
+        //   loading: () {},
+        //   data: (AuthResultModel? auth) {
+        //     if (!(auth?.isSuccess ?? false)) {
+        //       WSToast.show(auth?.failureReason ?? '');
+        //     }
+        //   },
+        //   error: (Object error, StackTrace stackTrace) {
+        //     FocusManager.instance.primaryFocus?.unfocus();
+        //     handleException(GeneralException.toGeneralException(error as Exception));
+        //   },
+        // );
+        isSendEmailLoading.value = true;
+        final auth = await ref.read(requestEmailVerificationProvider(email).future);
+        if (auth != null) {
+          if (!(auth.isSuccess ?? false) && isNotEmpty(auth.failureReason)) {
+            WSToast.show(auth.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE));
           }
-        },
-        error: (Object error, StackTrace stackTrace) {
-          FocusManager.instance.primaryFocus?.unfocus();
-          handleException(GeneralException.toGeneralException(error as Exception));
-        },
-      );
+        }
+        isSendEmailLoading.value = false;
+      } else {
+        WSToast.show(useL10n(theContext: ref.context).emailFormatErr);
+      }
     } else {
       // Email empty
       WSToast.show(useL10n(theContext: ref.context).emailEmptyErr);
@@ -267,7 +291,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
 
   // Send the code to verify
   Future<void> goVerify(BuildContext context, WidgetRef ref, String email, String vericode,
-      AsyncValue<AuthResultModel?> sendEmailState, AsyncValue<UserInfoResultModel?> verificationState) async {
+      ValueNotifier<bool> sendEmailState, AsyncValue<UserInfoResultModel?> verificationState) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (isNotEmpty(email) && isNotEmpty(vericode)) {
       await ref.read(emailVerificationProvider.notifier).verifyEmailAndCode(vericode);

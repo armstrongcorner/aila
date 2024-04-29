@@ -51,7 +51,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteURL.registerEmail,
         builder: (context, state) {
-          return RegisterEmailVerificationScreen();
+          return const RegisterEmailVerificationScreen();
         },
       ),
       GoRoute(

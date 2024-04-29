@@ -11,6 +11,7 @@
     "email": "Email",
     "emailTip": "Email for username to login",
     "emailEmptyErr": "Email can not be empty",
+    "emailFormatErr": "Please correct your email address",
     "sendVericode": "send code",
     "retryVericode": "retry",
     "vericodeTips": "Please go to your email box to get the verification code and fill the code form, then click 'Verify' button.",

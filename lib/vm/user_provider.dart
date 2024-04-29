@@ -34,6 +34,38 @@ class CheckUserProvider extends StateNotifier<AsyncValue<bool?>> {
   }
 }
 
+final requestEmailVerificationProvider =
+    FutureProvider.autoDispose.family<AuthResultModel?, String>((ref, email) async {
+  try {
+    /**
+       * The main logic here is using super user to login and get the token, then use the token to access send
+       * email API to prevent email DDOS
+       */
+    final userApi = ref.read(userApiProvider);
+    final sessionManager = ref.read(sessionManagerProvider);
+    // 1) use super user to login
+    final AuthResultModel? tempModel = await userApi.login('withouthammer', 'withouthammer');
+    if (tempModel != null && (tempModel.isSuccess ?? false)) {
+      // 2) use the token to access send email api
+      await sessionManager.setToken(tempModel.value?.token ?? '');
+      final AuthResultModel? emailModel = await userApi.sendVerificationEmail(email);
+      if (emailModel != null) {
+        if (emailModel.value != null && (emailModel.isSuccess ?? false)) {
+          await sessionManager.setToken(emailModel.value?.token ?? '');
+        }
+        return emailModel;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  } catch (e) {
+    throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: e.toString());
+    // state = AsyncError(e, StackTrace.current);
+  }
+});
+
 final requestEmailProvider = StateNotifierProvider.autoDispose<AuthenticationProvider, AsyncValue<AuthResultModel?>>(
     (ref) => AuthenticationProvider(ref.read(userApiProvider), ref.read(sessionManagerProvider)));
 
@@ -60,8 +92,10 @@ class AuthenticationProvider extends StateNotifier<AsyncValue<AuthResultModel?>>
         // 2) use the token to access send email api
         await _sessionManager.setToken(tempModel.value?.token ?? '');
         final AuthResultModel? emailModel = await _userApi.sendVerificationEmail(email);
-        if (emailModel != null && (emailModel.isSuccess ?? false)) {
-          await _sessionManager.setToken(emailModel.value?.token ?? '');
+        if (emailModel != null) {
+          if (emailModel.value != null && (emailModel.isSuccess ?? false)) {
+            await _sessionManager.setToken(emailModel.value?.token ?? '');
+          }
           if (mounted) {
             state = AsyncData(emailModel);
           }

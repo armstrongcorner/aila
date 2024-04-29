@@ -11,6 +11,7 @@
     "email": "邮箱",
     "emailTip": "邮箱将作为用户名用来登录",
     "emailEmptyErr": "邮箱不能为空",
+    "emailFormatErr": "请填写正确的邮件地址",
     "sendVericode": "发送验证码",
     "retryVericode": "重发",
     "vericodeTips": "请去邮箱查看6位数字验证码，并填写到下面的验证码框后点击 “验证” 按钮",
