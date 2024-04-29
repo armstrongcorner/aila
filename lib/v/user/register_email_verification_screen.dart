@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constant.dart';
@@ -10,7 +11,6 @@ import '../../core/general_exception.dart';
 import '../../core/route/app_route.dart';
 import '../../core/use_l10n.dart';
 import '../../core/utils/string_util.dart';
-import '../../m/user_info_result_model.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
@@ -32,9 +32,8 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
     final vericodeController = useTextEditingController();
     final resendCountDownSec = useState(countDownSec);
 
-    // final sendEmailState = ref.watch(requestEmailProvider);
     final isSendEmailLoading = useState(false);
-    final verificationState = ref.watch(emailVerificationProvider);
+    final isVerifing = useState(false);
 
     useEffect(() {
       // Continue the timer if last exit not finished
@@ -99,7 +98,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                       focusNode: emailNode,
                       enableSuggestions: false,
                       autocorrect: false,
-                      readOnly: isSendEmailLoading.value || verificationState.isLoading,
+                      readOnly: isSendEmailLoading.value || isVerifing.value,
                       onChanged: (value) {
                         isDisplayClearEmailBtn.value = isNotEmpty(emailController.text);
                       },
@@ -196,7 +195,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                       focusNode: vericodeNode,
                       enableSuggestions: false,
                       autocorrect: false,
-                      readOnly: verificationState.isLoading,
+                      readOnly: isVerifing.value,
                       onChanged: (value) {
                         isDisplayClearEmailBtn.value = isNotEmpty(emailController.text);
                       },
@@ -228,10 +227,10 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
                     child: WSLoadingButton(
                       onPressed: () async {
                         // Go verify the code
-                        await goVerify(context, ref, emailController.text.trim(), vericodeController.text.trim(),
-                            isSendEmailLoading, verificationState);
+                        await goVerify(
+                            context, ref, emailController.text.trim(), vericodeController.text.trim(), isVerifing);
                       },
-                      loading: verificationState.isLoading,
+                      loading: isVerifing.value,
                       child: Center(
                           child: Text(
                         useL10n(theContext: context).goVerify,
@@ -258,25 +257,11 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
     FocusManager.instance.primaryFocus?.unfocus();
     if (isNotEmpty(email)) {
       if (isContain(input: email, onlyEmail: true)) {
-        // await ref.read(requestEmailProvider.notifier).requestEmailVerification(email);
-        //
-        // sendEmailState.when(
-        //   loading: () {},
-        //   data: (AuthResultModel? auth) {
-        //     if (!(auth?.isSuccess ?? false)) {
-        //       WSToast.show(auth?.failureReason ?? '');
-        //     }
-        //   },
-        //   error: (Object error, StackTrace stackTrace) {
-        //     FocusManager.instance.primaryFocus?.unfocus();
-        //     handleException(GeneralException.toGeneralException(error as Exception));
-        //   },
-        // );
         isSendEmailLoading.value = true;
-        final auth = await ref.read(requestEmailVerificationProvider(email).future);
+        final auth = await ref.read(requestEmailProvider(email).future);
         if (auth != null) {
           if (!(auth.isSuccess ?? false) && isNotEmpty(auth.failureReason)) {
-            WSToast.show(auth.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+            WSToast.show(auth.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE), gravity: ToastGravity.BOTTOM);
           }
         }
         isSendEmailLoading.value = false;
@@ -290,29 +275,23 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
   }
 
   // Send the code to verify
-  Future<void> goVerify(BuildContext context, WidgetRef ref, String email, String vericode,
-      ValueNotifier<bool> sendEmailState, AsyncValue<UserInfoResultModel?> verificationState) async {
+  Future<void> goVerify(
+      BuildContext context, WidgetRef ref, String email, String vericode, ValueNotifier<bool> isVerifing) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (isNotEmpty(email) && isNotEmpty(vericode)) {
-      await ref.read(emailVerificationProvider.notifier).verifyEmailAndCode(vericode);
-      verificationState.when(
-        loading: () {},
-        data: (UserInfoResultModel? userInfo) {
-          if (userInfo?.value != null && (userInfo?.isSuccess ?? false)) {
-            final appRoute = ref.read(appRouterProvider);
-            appRoute.push(
-              RouteURL.registerPassword,
-              extra: {'username': userInfo?.value?.username},
-            );
-          } else if (!(userInfo?.isSuccess ?? false)) {
-            WSToast.show(userInfo?.failureReason ?? '');
-          }
-        },
-        error: (Object error, StackTrace stackTrace) {
-          FocusManager.instance.primaryFocus?.unfocus();
-          handleException(GeneralException.toGeneralException(error as Exception));
-        },
-      );
+      isVerifing.value = true;
+      final userInfo = await ref.read(emailVerificationProvider(vericode).future);
+      if (userInfo?.value != null && (userInfo?.isSuccess ?? false)) {
+        final appRoute = ref.read(appRouterProvider);
+        appRoute.push(
+          RouteURL.registerPassword,
+          extra: {'username': userInfo?.value?.username},
+        );
+      } else if (!(userInfo?.isSuccess ?? false)) {
+        WSToast.show(userInfo?.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE),
+            gravity: ToastGravity.BOTTOM);
+      }
+      isVerifing.value = false;
     } else if (isEmpty(email)) {
       // Email empty
       WSToast.show(useL10n(theContext: ref.context).emailEmptyErr);

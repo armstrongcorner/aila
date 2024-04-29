@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/constant.dart';
 import '../../core/general_exception.dart';
 import '../../core/route/app_route.dart';
 import '../../core/use_l10n.dart';
 import '../../core/utils/string_util.dart';
-import '../../m/auth_result_model.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/common_textfield.dart';
@@ -24,7 +25,7 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final confirmController = useTextEditingController();
 
-    final completeRegisterState = ref.watch(completeRegisterProvider);
+    final registerCompleting = useState(false);
 
     return Container(
       color: WSColor.primaryBgColor,
@@ -73,7 +74,7 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
                     ),
                     placeholderStr: useL10n(theContext: context).password,
                     isPasswordMask: true,
-                    readOnly: false, //checkUserState.isLoading || authloading,
+                    readOnly: registerCompleting.value,
                   ),
                   // 2) Confirm password
                   SizedBox(height: 5.h),
@@ -89,7 +90,7 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
                     ),
                     placeholderStr: useL10n(theContext: context).confirmPassword,
                     isPasswordMask: true,
-                    readOnly: false, //checkUserState.isLoading || authloading,
+                    readOnly: registerCompleting.value,
                   ),
                   SizedBox(height: 15.h),
                   const Spacer(flex: 2),
@@ -98,11 +99,10 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
                     height: 40.h,
                     child: WSLoadingButton(
                       onPressed: () async {
-                        // await checkForm(context, ref, usernameController, passwordController, confirmController);
                         await completeRegister(context, ref, username, passwordController.text.trim(),
-                            confirmController.text.trim(), completeRegisterState);
+                            confirmController.text.trim(), registerCompleting);
                       },
-                      loading: false, //checkUserState.isLoading || authloading,
+                      loading: registerCompleting.value,
                       child: Center(
                         child: Text(
                           useL10n(theContext: context).completeRegisterBtn,
@@ -126,36 +126,22 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
   }
 
   Future<void> completeRegister(BuildContext context, WidgetRef ref, String username, String password,
-      String confirmPassword, AsyncValue<AuthResultModel?> completeRegisterState) async {
+      String confirmPassword, ValueNotifier<bool> registerCompleting) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (isNotEmpty(password) && isNotEmpty(confirmPassword)) {
       if (password == confirmPassword) {
-        await ref.read(completeRegisterProvider.notifier).completeRegister(username, password);
-        completeRegisterState.when(
-          loading: () {},
-          data: (AuthResultModel? userInfo) {
-            if (userInfo?.value != null && (userInfo?.isSuccess ?? false)) {
-              // final appRoute = ref.read(appRouterProvider);
-              // appRoute.push(
-              //   RouteURL.registerPassword,
-              //   extra: {'username': userInfo?.value?.username},
-              // );
-
-              // SessionManager sessionManager = ref.read(sessionManagerProvider);
-              // sessionManager.setToken(auth?.value?.token ?? '');
-              // sessionManager.setUsername(usernameController.text.trim());
-
-              final appRoute = ref.read(appRouterProvider);
-              appRoute.go(RouteURL.chat);
-            } else if (!(userInfo?.isSuccess ?? false)) {
-              WSToast.show(userInfo?.failureReason ?? '');
-            }
-          },
-          error: (Object error, StackTrace stackTrace) {
-            FocusManager.instance.primaryFocus?.unfocus();
-            handleException(GeneralException.toGeneralException(error as Exception));
-          },
-        );
+        registerCompleting.value = true;
+        final auth = await ref
+            .read(completeRegisterProvider(CompleteRegisterParams(username: username, password: password)).future);
+        if (auth != null) {
+          if (auth.value != null && (auth.isSuccess ?? false)) {
+            final appRoute = ref.read(appRouterProvider);
+            appRoute.go(RouteURL.chat);
+          } else if (!(auth.isSuccess ?? false)) {
+            WSToast.show(auth.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE), gravity: ToastGravity.BOTTOM);
+          }
+        }
+        registerCompleting.value = false;
       } else {
         WSToast.show(useL10n(theContext: context).passwordNotSameErr);
       }

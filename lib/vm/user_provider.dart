@@ -2,6 +2,7 @@ import 'package:aila/core/general_exception.dart';
 import 'package:aila/core/session_manager.dart';
 import 'package:aila/core/utils/sp_util.dart';
 import 'package:aila/core/utils/string_util.dart';
+import 'package:equatable/equatable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../app.dart';
@@ -11,6 +12,11 @@ import '../m/auth_result_model.dart';
 import '../m/datasources/user_api.dart';
 import '../m/user_info_result_model.dart';
 
+/**
+ * ---------------------------------
+ * Start of the whole register procedure.
+ * ---------------------------------
+ */
 final checkUserProvider =
     StateNotifierProvider<CheckUserProvider, AsyncValue<bool?>>((ref) => CheckUserProvider(ref.read(userApiProvider)));
 
@@ -34,15 +40,13 @@ class CheckUserProvider extends StateNotifier<AsyncValue<bool?>> {
   }
 }
 
-final requestEmailVerificationProvider =
-    FutureProvider.autoDispose.family<AuthResultModel?, String>((ref, email) async {
+// The main logic here is using super user to login and get the token, then use the token to
+// access send email API to prevent email DDOS
+final requestEmailProvider = FutureProvider.autoDispose.family<AuthResultModel?, String>((ref, email) async {
   try {
-    /**
-       * The main logic here is using super user to login and get the token, then use the token to access send
-       * email API to prevent email DDOS
-       */
     final userApi = ref.read(userApiProvider);
     final sessionManager = ref.read(sessionManagerProvider);
+
     // 1) use super user to login
     final AuthResultModel? tempModel = await userApi.login('withouthammer', 'withouthammer');
     if (tempModel != null && (tempModel.isSuccess ?? false)) {
@@ -53,88 +57,75 @@ final requestEmailVerificationProvider =
         if (emailModel.value != null && (emailModel.isSuccess ?? false)) {
           await sessionManager.setToken(emailModel.value?.token ?? '');
         }
+
         return emailModel;
-      } else {
-        return null;
       }
-    } else {
-      return null;
     }
   } catch (e) {
     throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: e.toString());
-    // state = AsyncError(e, StackTrace.current);
   }
+
+  return null;
 });
 
-final requestEmailProvider = StateNotifierProvider.autoDispose<AuthenticationProvider, AsyncValue<AuthResultModel?>>(
-    (ref) => AuthenticationProvider(ref.read(userApiProvider), ref.read(sessionManagerProvider)));
+// Just send the code would be OK bcz the email already combine with the token
+final emailVerificationProvider = FutureProvider.autoDispose.family<UserInfoResultModel?, String>((ref, code) async {
+  try {
+    final userApi = ref.read(userApiProvider);
+
+    final UserInfoResultModel? verificationModel = await userApi.goVerify(code);
+    if (verificationModel != null) {
+      return verificationModel;
+    }
+  } catch (e) {
+    throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: e.toString());
+  }
+
+  return null;
+});
+
+// Complete the user register procedure by given user provided password and activate the account
+class CompleteRegisterParams extends Equatable {
+  const CompleteRegisterParams({
+    this.username,
+    this.password,
+  });
+
+  final String? username;
+  final String? password;
+
+  @override
+  List<Object?> get props => [username, password];
+}
 
 final completeRegisterProvider =
-    StateNotifierProvider.autoDispose<AuthenticationProvider, AsyncValue<AuthResultModel?>>(
-        (ref) => AuthenticationProvider(ref.read(userApiProvider), ref.read(sessionManagerProvider)));
+    FutureProvider.autoDispose.family<AuthResultModel?, CompleteRegisterParams>((ref, completeRegisterParams) async {
+  try {
+    final userApi = ref.read(userApiProvider);
+    final sessionManager = ref.read(sessionManagerProvider);
 
-class AuthenticationProvider extends StateNotifier<AsyncValue<AuthResultModel?>> {
-  AuthenticationProvider(this._userApi, this._sessionManager) : super(const AsyncData(null));
-  final UserApi _userApi;
-  final SessionManager _sessionManager;
-
-  Future<void> requestEmailVerification(String email) async {
-    try {
-      /**
-       * The main logic here is using super user to login and get the token, then use the token to access send
-       * email API to prevent email DDOS
-       */
-      state = const AsyncLoading();
-
-      // 1) use super user to login
-      final AuthResultModel? tempModel = await _userApi.login('withouthammer', 'withouthammer');
-      if (tempModel != null && (tempModel.isSuccess ?? false)) {
-        // 2) use the token to access send email api
-        await _sessionManager.setToken(tempModel.value?.token ?? '');
-        final AuthResultModel? emailModel = await _userApi.sendVerificationEmail(email);
-        if (emailModel != null) {
-          if (emailModel.value != null && (emailModel.isSuccess ?? false)) {
-            await _sessionManager.setToken(emailModel.value?.token ?? '');
-          }
-          if (mounted) {
-            state = AsyncData(emailModel);
-          }
-        } else {
-          state = AsyncError(GeneralException(code: CODE_INVALID_OPERATION), StackTrace.current);
-        }
-      } else {
-        state = AsyncError(GeneralException(code: CODE_SERVICE_UNAVAILABLE), StackTrace.current);
+    final AuthResultModel? completeRegisterModel =
+        await userApi.completeRegister(completeRegisterParams.username ?? '', completeRegisterParams.password ?? '');
+    if (completeRegisterModel != null) {
+      if ((completeRegisterModel.isSuccess ?? false) && isNotEmpty(completeRegisterModel.value?.token)) {
+        await sessionManager.setUsername(completeRegisterParams.username ?? '');
+        await sessionManager.setPassword(completeRegisterParams.password ?? '');
+        await sessionManager.setToken(completeRegisterModel.value?.token ?? '');
       }
-    } catch (e) {
-      state = AsyncError(e, StackTrace.current);
+
+      return completeRegisterModel;
     }
+  } catch (e) {
+    throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: e.toString());
   }
 
-  Future<void> completeRegister(String username, String password) async {
-    try {
-      /**
-       * Complete the user register procedure by given user provided password and activate the account
-       */
-      state = const AsyncLoading();
-
-      final AuthResultModel? completeRegisterModel = await _userApi.completeRegister(username, password);
-      if (completeRegisterModel != null) {
-        if ((completeRegisterModel.isSuccess ?? false) && isNotEmpty(completeRegisterModel.value?.token)) {
-          await _sessionManager.setUsername(username);
-          await _sessionManager.setPassword(password);
-          await _sessionManager.setToken(completeRegisterModel.value?.token ?? '');
-        }
-        if (mounted) {
-          state = AsyncData(completeRegisterModel);
-        }
-      } else {
-        state = AsyncError(GeneralException(code: CODE_INVALID_OPERATION), StackTrace.current);
-      }
-    } catch (e) {
-      state = AsyncError(e, StackTrace.current);
-    }
-  }
-}
+  return null;
+});
+/**
+ * ---------------------------------
+ * End of the register procedure.
+ * ---------------------------------
+ */
 
 final authProvider = StateNotifierProvider<AuthProvider, RequestState<AuthResultModel?>>(
     (ref) => AuthProvider(ref.read(userApiProvider)));
@@ -173,34 +164,6 @@ class AuthProvider extends RequestStateNotifier<AuthResultModel?> {
       }
     });
     return res;
-  }
-}
-
-final emailVerificationProvider = StateNotifierProvider.autoDispose<UserInfoProvider, AsyncValue<UserInfoResultModel?>>(
-    (ref) => UserInfoProvider(ref.read(userApiProvider)));
-
-class UserInfoProvider extends StateNotifier<AsyncValue<UserInfoResultModel?>> {
-  UserInfoProvider(this._userApi) : super(const AsyncData(null));
-  final UserApi _userApi;
-
-  Future<void> verifyEmailAndCode(String code) async {
-    try {
-      /**
-       * Just send the code would be OK bcz the email already combine with the token
-       */
-      state = const AsyncLoading();
-
-      final UserInfoResultModel? verificationModel = await _userApi.goVerify(code);
-      if (verificationModel != null) {
-        if (mounted) {
-          state = AsyncData(verificationModel);
-        }
-      } else {
-        state = AsyncError(GeneralException(code: CODE_INVALID_OPERATION), StackTrace.current);
-      }
-    } catch (e) {
-      state = AsyncError(e, StackTrace.current);
-    }
   }
 }
 
