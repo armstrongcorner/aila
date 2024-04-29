@@ -25,7 +25,7 @@ class RegisterEmailVerificationScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final emailNode = useFocusNode();
-    final emailController = useTextEditingController(text: 'armstrong.liu@matrixthoughts.com.au');
+    final emailController = useTextEditingController();
     final isDisplayClearEmailBtn = useState(isNotEmpty(emailController.text));
 
     final vericodeNode = useFocusNode();
