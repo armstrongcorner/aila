@@ -11,7 +11,6 @@ import '../../v/chat/chat_screen.dart';
 import '../../v/common_widgets/toast.dart';
 import '../../v/setting/setting_screen.dart';
 import '../../v/user/register_complete_password_screen.dart';
-import '../../v/user/register_screen.dart';
 import '../use_l10n.dart';
 import 'navigation_service.dart';
 
@@ -40,12 +39,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteURL.login,
         builder: (context, state) {
           return const LoginPage();
-        },
-      ),
-      GoRoute(
-        path: RouteURL.register,
-        builder: (context, state) {
-          return const RegisterPage();
         },
       ),
       GoRoute(
