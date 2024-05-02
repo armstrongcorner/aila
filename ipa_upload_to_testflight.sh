@@ -6,4 +6,5 @@ fi
 
 mv build/ios/ipa/aila.ipa ~/Desktop/sidu_appstore.ipa
 
+echo "Uploading to TestFlight..."
 xcrun altool --upload-app --type ios -f ~/Desktop/sidu_appstore.ipa --apiKey 9Z7T433PM6 --apiIssuer 21962876-8727-4e44-9596-8a5c57f40a7a
