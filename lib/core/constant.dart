@@ -46,6 +46,6 @@ const int RESEND_VERI_CODE_COUNTDOWN_IN_SEC = 60;
 /*
  * Chat settings
  */
-const int CHAT_COMPLETE_GAP_IN_MINUTES = 60;
-const int MAX_CHAT_DEPTH = 15;
+const int CHAT_COMPLETE_GAP_IN_MINUTES = 15;
+const int MAX_CHAT_DEPTH = 7;
 const int MAX_AUDIO_LENGTH = 60;
