@@ -5,10 +5,13 @@ import 'package:aila/core/constant.dart';
 import 'package:aila/core/utils/misc_util.dart';
 import 'package:aila/core/utils/log.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../use_l10n.dart';
 
 enum PlaybackState {
   stop,
@@ -65,13 +68,20 @@ class AudioUtil {
   }
 
   static Future<void> startRecorder(
-      {Function(int duration, double volume)? progressCallback,
-      Function(int length, String audioFilePath)? completeCallback}) async {
+      {required BuildContext context,
+      Function(int duration, double volume)? progressCallback,
+      Function(int length, String audioFilePath)? completeCallback,
+      Function()? failureCallback}) async {
     // ignore: constant_identifier_names
     const String TAG = 'AudioUtil';
 
     try {
-      await getPermissionStatus(Permission.microphone).then((isGranted) async {
+      await getPermissionStatus(
+        context,
+        Permission.microphone,
+        needGoSettingTip: true,
+        tipContent: useL10n(theContext: context).requestMicSetting,
+      ).then((isGranted) async {
         if (isGranted) {
           // Define the record file path
           Directory tempDir = await getTemporaryDirectory();
@@ -104,6 +114,8 @@ class AudioUtil {
               cancelOnError: true,
             );
           }
+        } else {
+          failureCallback != null ? failureCallback() : null;
         }
       });
     } catch (e) {
@@ -111,6 +123,7 @@ class AudioUtil {
       completeCallback != null
           ? await stopRecorder(completeCallback: completeCallback(MAX_AUDIO_LENGTH, audioFilePath ?? ''))
           : await stopRecorder();
+      failureCallback != null ? failureCallback() : null;
     }
   }
 

@@ -52,5 +52,10 @@
     "playbackProgress": "播放进度",
     "stopPlayback": "停止播放",
     "recordDuration": "录音时长",
-    "max": "最多"
+    "max": "最多",
+    "requestGeneralSetting": "请去app相关设置里打开对应的权限",
+    "requestMicSetting": "使用语音功能请去app相关设置里打开“麦克风”使用权限",
+    "requestAlbumSetting": "使用相册功能请去app相关设置里打开“相册”使用权限",
+    "requestCameraSetting": "使用拍照功能请去app相关设置里打开“相机”使用权限",
+    "goSetting": "去设置"
 }

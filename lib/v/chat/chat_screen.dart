@@ -180,6 +180,7 @@ class ChatPage extends HookConsumerWidget {
                                                         onLongPressStart: (_) {
                                                           startToSpeech.value = true;
                                                           AudioUtil.startRecorder(
+                                                            context: context,
                                                             progressCallback: (duration, volume) {
                                                               recordDuration.value = duration;
                                                               recordVolume.value = volume;
@@ -188,6 +189,9 @@ class ChatPage extends HookConsumerWidget {
                                                               startToSpeech.value = false;
                                                               recordLength.value = length;
                                                               recordFilePath.value = audioFilePath;
+                                                            },
+                                                            failureCallback: () {
+                                                              startToSpeech.value = false;
                                                             },
                                                           );
                                                         },
@@ -445,7 +449,14 @@ class ChatPage extends HookConsumerWidget {
           actions: [
             CupertinoActionSheetAction(
               onPressed: () {
-                ImageUtil.pickFromAlbum(context, assetListNotifier).then((_) => Navigator.pop(context));
+                Navigator.pop(context);
+                ImageUtil.pickFromAlbum(
+                  context: context,
+                  selectedAssets: assetListNotifier.value,
+                  completeCallback: (pickedAssetList) {
+                    assetListNotifier.value = pickedAssetList ?? [];
+                  },
+                );
               },
               child: Text(
                 useL10n(theContext: context).selectFromGallery,
@@ -457,7 +468,13 @@ class ChatPage extends HookConsumerWidget {
             ),
             CupertinoActionSheetAction(
               onPressed: () {
-                ImageUtil.pickFromCamera(context, assetListNotifier).then((_) => Navigator.pop(context));
+                Navigator.pop(context);
+                ImageUtil.pickFromCamera(context, completeCallback: (assetEntity) {
+                  if (assetEntity != null) {
+                    assetListNotifier.value.add(assetEntity);
+                    assetListNotifier.value = assetListNotifier.value.toList();
+                  }
+                });
               },
               child: Text(
                 useL10n(theContext: context).selectFromCamera,

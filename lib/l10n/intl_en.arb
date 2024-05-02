@@ -1,5 +1,5 @@
 {
-    "mainPage": "Main Page",
+    "mainPage": "Main",
     "settingPage": "Setting",
     "searchPlaceholder": "Type here",
     "searchEmptyErr": "Please type contents",
@@ -52,5 +52,10 @@
     "playbackProgress": "Playing",
     "stopPlayback": "Stop playing",
     "recordDuration": "Recording",
-    "max": "max"
+    "max": "max",
+    "requestGeneralSetting": "Please go to app setting and turn on the permission.",
+    "requestMicSetting": "Please go to app setting and turn on \"Microphone\" permission to use talking function.",
+    "requestAlbumSetting": "Please go to app setting and turn on \"Photos\" permission to use choosing picture function.",
+    "requestCameraSetting": "Please go to app setting and turn on \"Camera\" permission to use taking picture function.",
+    "goSetting": "Go setting"
 }
