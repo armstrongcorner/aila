@@ -29,7 +29,7 @@
     "logoutBtn": "Logout",
     "registerBtn": "Create",
     "completeRegisterBtn": "Complete Register",
-    "registerEntryBtn": "No account? Go to register",
+    "registerEntryBtn": "No account? Go to sign up",
     "userExistedErr": "You are late. This username already been taken. Please change a new one.",
     "passwordNotSameErr": "Please confirm the password same",
     "registerFailure": "User registration failure. Unknown error. Please contact administrator",
