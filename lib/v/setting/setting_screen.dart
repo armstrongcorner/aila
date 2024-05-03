@@ -77,12 +77,10 @@ class SettingPage extends HookConsumerWidget {
                         width: 1.0.sw,
                         height: 50.h,
                         child: ClickItem(
-                          title:
-                              useL10n(theContext: context).currentVersionInfo,
+                          title: useL10n(theContext: context).currentVersionInfo,
                           margin: const EdgeInsets.all(0),
                           padding: EdgeInsets.only(left: 15.w, right: 15.w),
-                          content:
-                              '${versionNumber.value}(${buildNumber.value})',
+                          content: '${versionNumber.value}(${buildNumber.value})',
                           bottomBorder: false,
                           // onTap: () => _selectLanguage(context, ref),
                           overrideBackgroundColor: false,
@@ -132,14 +130,12 @@ class SettingPage extends HookConsumerWidget {
                         context,
                         barrierDismissible: true,
                         child: SimpleDialogContent(
-                          bodyText:
-                              useL10n(theContext: context).confirmLogoutTip,
+                          bodyText: useL10n(theContext: context).confirmLogoutTip,
                           cancelBtnText: useL10n(theContext: context).cancel,
                           okBtnText: useL10n(theContext: context).ok,
                           onClickOK: () async {
                             final appRoute = ref.read(appRouterProvider);
-                            final sessionManager =
-                                ref.read(sessionManagerProvider);
+                            final sessionManager = ref.read(sessionManagerProvider);
                             sessionManager.logout(keepUsername: false);
                             appRoute.go(RouteURL.login);
                           },
@@ -172,15 +168,11 @@ class SettingPage extends HookConsumerWidget {
 
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
       ),
       context: context,
       builder: (context) {
-        return WillPopScope(
-          onWillPop: () async {
-            return true;
-          },
+        return PopScope(
           child: Container(
             padding: const EdgeInsets.all(8),
             child: ListView.separated(
@@ -215,12 +207,8 @@ class SettingPage extends HookConsumerWidget {
                           ),
                         ),
                         Opacity(
-                          opacity: currentLanguage ==
-                                  languageMap.keys.elementAt(index)
-                              ? 1
-                              : 0,
-                          child:
-                              const Icon(Icons.done, color: WSColor.gptColor),
+                          opacity: currentLanguage == languageMap.keys.elementAt(index) ? 1 : 0,
+                          child: const Icon(Icons.done, color: WSColor.gptColor),
                         )
                       ],
                     ),

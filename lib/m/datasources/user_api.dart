@@ -51,33 +51,15 @@ class UserApi {
     return userExistResultModel;
   }
 
-  Future<AuthResultModel?> register(UserInfoModel? newUser) async {
-    var res = await apiClient.post(
-      '/identity/user/create',
-      {
-        'username': newUser?.username ?? '',
-        'role': newUser?.role ?? '',
-        'password': newUser?.passwordEncrypted ?? '', // Not encrypted for now, will implement later
-        'mobile': newUser?.mobile ?? '',
-        'email': newUser?.email ?? '',
-        'tokenDurationInMin': newUser?.tokenDurationInMin ?? 0,
-        'isActive': newUser?.isActive ?? true,
-      },
-      myBaseUrl: USER_URL,
-    );
-    var authResultModel = AuthResultModel.fromJson(res);
-    return authResultModel;
-  }
-
-  Future<AuthResultModel?> sendVerificationEmail(String email) async {
+  Future<AuthResultModel?> sendVerificationEmail(String email, String language) async {
     var res = await apiClient.post(
       '/identity/user/create',
       {
         'username': email,
         'role': 'User',
-        'mobile': 'Chinese',
+        'language': language,
         'email': email,
-        'tokenDurationInMin': 10,
+        'tokenDurationInMin': USER_DEFAULT_TOKEN_DURATION_IN_MIN,
         'isActive': false,
       },
       myBaseUrl: USER_URL,

@@ -52,7 +52,8 @@ final requestEmailProvider = FutureProvider.autoDispose.family<AuthResultModel?,
     if (tempModel != null && (tempModel.isSuccess ?? false)) {
       // 2) use the token to access send email api
       await sessionManager.setToken(tempModel.value?.token ?? '');
-      final AuthResultModel? emailModel = await userApi.sendVerificationEmail(email);
+      final selectedLanguage = SpUtil.getString(SpKeys.SELECTED_LANGUAGE) == '中文' ? 'Chinese' : 'English';
+      final AuthResultModel? emailModel = await userApi.sendVerificationEmail(email, selectedLanguage);
       if (emailModel != null) {
         if (emailModel.value != null && (emailModel.isSuccess ?? false)) {
           await sessionManager.setToken(emailModel.value?.token ?? '');
@@ -139,25 +140,6 @@ class AuthProvider extends RequestStateNotifier<AuthResultModel?> {
       try {
         final AuthResultModel? resultModel = await _userApi.login(username, password);
         tokenExpiredState.value = false;
-        return resultModel;
-      } catch (e) {
-        rethrow;
-      }
-    });
-    return res;
-  }
-
-  Future<RequestState<AuthResultModel?>> register(String username, String password) async {
-    final RequestState<AuthResultModel?> res = await makeRequest(() async {
-      try {
-        final newUser = UserInfoModel(
-          username: username,
-          passwordEncrypted: password,
-          role: USER_DEFAULT_ROLE,
-          tokenDurationInMin: USER_DEFAULT_TOKEN_DURATION_IN_MIN,
-          isActive: true,
-        );
-        final AuthResultModel? resultModel = await _userApi.register(newUser);
         return resultModel;
       } catch (e) {
         rethrow;
