@@ -11,8 +11,7 @@ class ChatEndWidget extends HookConsumerWidget {
   final ChatContextModel chatItem;
   final bool isLastResponse;
 
-  const ChatEndWidget(
-      {super.key, required this.chatItem, this.isLastResponse = false});
+  const ChatEndWidget({super.key, required this.chatItem, this.isLastResponse = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,11 +58,10 @@ class ChatEndWidget extends HookConsumerWidget {
                         padding: EdgeInsets.fromLTRB(10.w, 5.h, 10.w, 5.h),
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
                         ),
                         child: Text(
-                          '点击结束当前会话',
+                          useL10n(theContext: context).clickToEndChat,
                           style: TextStyle(
                             color: WSColor.primaryFontColor,
                             fontSize: 12.sp,

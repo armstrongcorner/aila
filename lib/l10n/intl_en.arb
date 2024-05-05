@@ -37,6 +37,7 @@
     "currentVersionInfo": "Version",
     "currentLang": "Language",
     "chatCompleteMark": "Chat complete",
+    "clickToEndChat": "Click to end chat",
     "confirmLogoutTip": "Confirm to logout?",
     "clearChatHistory": "Clear chat",
     "clearChatConfirmTip": "Confirm to clear the current chat history?",

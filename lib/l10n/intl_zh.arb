@@ -37,6 +37,7 @@
     "currentVersionInfo": "当前版本",
     "currentLang": "语言",
     "chatCompleteMark": "对话已结束",
+    "clickToEndChat": "点击结束当前会话",
     "confirmLogoutTip": "确定退出吗？",
     "clearChatHistory": "清空会话",
     "clearChatConfirmTip": "确认清空当前账号会话记录吗？",

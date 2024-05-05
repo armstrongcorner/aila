@@ -55,7 +55,7 @@ class SettingPage extends HookConsumerWidget {
             leading: IconButton(
               onPressed: () {
                 final appRoute = ref.read(appRouterProvider);
-                appRoute.pop();
+                appRoute.canPop() ? appRoute.pop() : appRoute.go(RouteURL.chat);
               },
               icon: const Icon(
                 Icons.arrow_back_ios,
@@ -206,8 +206,8 @@ class SettingPage extends HookConsumerWidget {
                             ),
                           ),
                         ),
-                        Opacity(
-                          opacity: currentLanguage == languageMap.keys.elementAt(index) ? 1 : 0,
+                        Visibility(
+                          visible: currentLanguage == languageMap.keys.elementAt(index),
                           child: const Icon(Icons.done, color: WSColor.gptColor),
                         )
                       ],
