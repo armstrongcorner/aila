@@ -25,7 +25,7 @@ class SearchApi {
       String lastId = '', lastRole = '';
       for (var chatContextModel in chatList) {
         contentItem = {};
-        if (chatContextModel.type == 'text') {
+        if (chatContextModel.type == 'text' || chatContextModel.type == 'audio') {
           contentItem['type'] = 'text';
           contentItem['text'] = chatContextModel.content;
         } else if (chatContextModel.type == 'image') {
@@ -72,7 +72,7 @@ class SearchApi {
     var res = await apiClient.post(
       '/chat/balance/complete',
       {
-        'model': model ?? 'gpt-4',
+        'model': model ?? 'gpt-4-turbo',
         'max_tokens': 4096,
         'messages': buildUplinkMessages(chatList),
       },

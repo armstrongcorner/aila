@@ -166,6 +166,15 @@ class ChatPage extends HookConsumerWidget {
                                             onSubmitted: (value) {
                                               sendUserText(ref, userTextController.text, finalAssetList,
                                                   recordFilePath.value, recordLength.value, toggleMicInput.value);
+                                              if (playbackState.value == PlaybackState.playing ||
+                                                  playbackState.value == PlaybackState.paused) {
+                                                AudioUtil.stopPlayer(
+                                                  completeCallback: () {
+                                                    playbackState.value = PlaybackState.stop;
+                                                    playbackPosition.value = 0;
+                                                  },
+                                                );
+                                              }
                                               userTextController.clear();
                                               recordFilePath.value = '';
                                               recordLength.value = 0;
@@ -256,6 +265,27 @@ class ChatPage extends HookConsumerWidget {
                                                             );
                                                             WSToast.show(useL10n(theContext: context).stopPlayback);
                                                           }
+                                                        },
+                                                        onDoubleTap: () {
+                                                          sendUserText(
+                                                              ref,
+                                                              userTextController.text,
+                                                              finalAssetList,
+                                                              recordFilePath.value,
+                                                              recordLength.value,
+                                                              toggleMicInput.value);
+                                                          if (playbackState.value == PlaybackState.playing ||
+                                                              playbackState.value == PlaybackState.paused) {
+                                                            AudioUtil.stopPlayer(
+                                                              completeCallback: () {
+                                                                playbackState.value = PlaybackState.stop;
+                                                                playbackPosition.value = 0;
+                                                              },
+                                                            );
+                                                          }
+                                                          userTextController.clear();
+                                                          recordFilePath.value = '';
+                                                          recordLength.value = 0;
                                                         },
                                                         child: Container(
                                                           margin: EdgeInsets.fromLTRB(10.w, 8.h, 15.w, 8.h),
@@ -416,6 +446,15 @@ class ChatPage extends HookConsumerWidget {
                               onTap: () {
                                 sendUserText(ref, userTextController.text, finalAssetList, recordFilePath.value,
                                     recordLength.value, toggleMicInput.value);
+                                if (playbackState.value == PlaybackState.playing ||
+                                    playbackState.value == PlaybackState.paused) {
+                                  AudioUtil.stopPlayer(
+                                    completeCallback: () {
+                                      playbackState.value = PlaybackState.stop;
+                                      playbackPosition.value = 0;
+                                    },
+                                  );
+                                }
                                 userTextController.clear();
                                 recordFilePath.value = '';
                                 recordLength.value = 0;

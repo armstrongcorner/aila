@@ -146,8 +146,6 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
       }
 
       Future.wait(taskList).then((uploadResultList) async {
-        final includeImg = chatList.where((element) => element.type == 'image').isNotEmpty;
-
         for (var uploadResultMap in uploadResultList) {
           String responseContent = '';
           var uploadResult = uploadResultMap.values.first;
@@ -186,7 +184,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         // 2-5) Sent the chat
         final SearchContentResultModel? resultModel = await _searchApi.search(
           chatContextList.reversed.toList(),
-          model: includeImg ? 'gpt-4-vision-preview' : 'gpt-4',
+          model: 'gpt-4-turbo',
         );
 
         // 3) Show and local cache the search result
