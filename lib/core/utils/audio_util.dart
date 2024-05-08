@@ -85,11 +85,11 @@ class AudioUtil {
         if (isGranted) {
           // Define the record file path
           Directory tempDir = await getTemporaryDirectory();
-          audioFilePath = '${tempDir.path}/audio-${DateTime.now().millisecondsSinceEpoch}${ext[Codec.flac.index]}';
+          audioFilePath = '${tempDir.path}/audio-${DateTime.now().millisecondsSinceEpoch}${ext[Codec.aacMP4.index]}';
           // Start to record audio
           Log.d(TAG, 'File should be saved at: $audioFilePath');
           await _recorderModule?.startRecorder(
-            codec: Codec.flac,
+            codec: Codec.aacMP4,
             toFile: audioFilePath,
             audioSource: AudioSource.microphone,
           );
@@ -158,7 +158,7 @@ class AudioUtil {
         if (await fileExists(path)) {
           await _playerModule?.startPlayer(
             fromURI: path,
-            codec: Codec.flac,
+            codec: Codec.aacMP4,
             whenFinished: () async {
               // stopPlayer();
               await _playerSubscription?.cancel();
