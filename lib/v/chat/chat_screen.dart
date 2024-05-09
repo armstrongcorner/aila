@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aila/core/constant.dart';
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/audio_util.dart';
@@ -6,16 +8,21 @@ import 'package:aila/core/utils/image_util.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/v/common_widgets/color.dart';
 import 'package:aila/v/common_widgets/toast.dart';
+import 'package:aila/vm/misc_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import '../../core/general_exception.dart';
 import '../../core/use_l10n.dart';
 import '../../m/chat_context_model.dart';
 import '../../vm/chat_provider.dart';
+import '../common_widgets/simple_dialog_content.dart';
 import 'chat_audio_record_overlay.dart';
 import 'chat_content.dart';
 
@@ -39,6 +46,49 @@ class ChatPage extends HookConsumerWidget {
     final chatListState = ref.watch(chatProvider);
 
     useEffect(() {
+      // init here
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final versionResult = await ref.read(versionCheckProvider.future);
+        if (versionResult?.value != null && (versionResult?.isSuccess ?? false)) {
+          final versionModel = versionResult?.value;
+          if (versionModel?.isActive ?? false) {
+            showCustomSizeDialog(
+              // ignore: use_build_context_synchronously
+              context,
+              barrierDismissible: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false),
+              child: SimpleDialogContent(
+                // ignore: use_build_context_synchronously
+                titleText: useL10n(theContext: context).newVersionFound,
+                bodyText:
+                    // ignore: use_build_context_synchronously
+                    '${useL10n(theContext: context).versionNumber}: ${versionModel?.versionNumber ?? ''}\n${useL10n(theContext: context).versionContent}: ${versionModel?.upgradeDescription ?? ''}',
+                cancelBtnText: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false)
+                    // ignore: use_build_context_synchronously
+                    ? useL10n(theContext: context).notNow
+                    : null,
+                // ignore: use_build_context_synchronously
+                okBtnText: useL10n(theContext: context).goUpgrade,
+                onClickOK: () async {
+                  // Jump to appstore or download apk file
+                  var url = '';
+                  if (Platform.isIOS) {
+                    url = versionModel?.iosUrl ?? '';
+                  } else if (Platform.isAndroid) {
+                    url = versionModel?.androidUrl ?? '';
+                  }
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url));
+                  }
+                },
+              ),
+            );
+          }
+        } else if (!(versionResult?.isSuccess ?? false)) {
+          WSToast.show(versionResult?.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE),
+              gravity: ToastGravity.BOTTOM);
+        }
+      });
+      // deinit here
       return () {};
     }, const []);
 

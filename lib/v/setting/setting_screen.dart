@@ -36,12 +36,14 @@ class SettingPage extends HookConsumerWidget {
     final buildNumber = useState('-');
 
     useEffect(() {
+      // init here
       PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
         // version number
         versionNumber.value = packageInfo.version;
         // build number
         buildNumber.value = packageInfo.buildNumber;
       });
+      // deinit here
       return () {};
     }, const []);
 
