@@ -78,13 +78,17 @@ class ApiClient {
       var responseBody = response.data;
       // _checkStatusCode(isRestApi, responseBody, statusCode);
       return responseBody;
-    } on GeneralException {
+    } catch (e) {
+      print(e.toString());
       rethrow;
-    } on TimeoutException {
-      rethrow;
-    } on Exception {
-      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
     }
+    // on GeneralException {
+    //   rethrow;
+    // } on TimeoutException {
+    //   rethrow;
+    // } on Exception {
+    //   throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+    // }
   }
 
   Future<dynamic> getBytes(String path,

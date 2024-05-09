@@ -1,21 +1,30 @@
+import 'dart:io';
+
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/log.dart';
 import 'package:aila/core/utils/sp_util.dart';
+import 'package:aila/m/datasources/misc_api.dart';
+import 'package:aila/m/version_result_model.dart';
 import 'package:aila/v/common_widgets/simple_dialog_content.dart';
 import 'package:aila/vm/misc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/constant.dart';
+import '../../core/general_exception.dart';
 import '../../core/session_manager.dart';
 import '../../core/use_l10n.dart';
 import '../../vm/chat_provider.dart';
 import '../common_widgets/click_item.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
+import '../common_widgets/toast.dart';
 
 class SettingPage extends HookConsumerWidget {
   const SettingPage({super.key});
@@ -77,12 +86,13 @@ class SettingPage extends HookConsumerWidget {
                         width: 1.0.sw,
                         height: 50.h,
                         child: ClickItem(
-                          title: useL10n(theContext: context).currentVersionInfo,
+                          title: useL10n(theContext: context).checkUpdate,
                           margin: const EdgeInsets.all(0),
                           padding: EdgeInsets.only(left: 15.w, right: 15.w),
-                          content: '${versionNumber.value}(${buildNumber.value})',
+                          content:
+                              '${useL10n(theContext: context).currentVersionInfo}: ${versionNumber.value}(${buildNumber.value})',
                           bottomBorder: false,
-                          // onTap: () => _selectLanguage(context, ref),
+                          onTap: () => _checkUpdate(context, ref),
                           overrideBackgroundColor: false,
                         ),
                       );
@@ -161,6 +171,80 @@ class SettingPage extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _checkUpdate(BuildContext context, WidgetRef ref) async {
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.clear,
+    );
+
+    final versionResult = await ref.read(versionCheckProvider.future);
+    if (versionResult?.value != null && (versionResult?.isSuccess ?? false)) {
+      final versionModel = versionResult?.value;
+      if (versionModel?.isActive ?? false) {
+        showCustomSizeDialog(
+          // ignore: use_build_context_synchronously
+          context,
+          barrierDismissible: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false),
+          child: SimpleDialogContent(
+            // ignore: use_build_context_synchronously
+            titleText: useL10n(theContext: context).newVersionFound,
+            bodyText:
+                // ignore: use_build_context_synchronously
+                '${useL10n(theContext: context).versionNumber}: ${versionModel?.versionNumber ?? ''}\n${useL10n(theContext: context).versionContent}: ${versionModel?.upgradeDescription ?? ''}',
+            cancelBtnText: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false)
+                // ignore: use_build_context_synchronously
+                ? useL10n(theContext: context).notNow
+                : null,
+            // ignore: use_build_context_synchronously
+            okBtnText: useL10n(theContext: context).goUpgrade,
+            onClickOK: () async {
+              // Jump to appstore or download apk file
+              var url = '';
+              if (Platform.isIOS) {
+                url = versionModel?.iosUrl ?? '';
+              } else if (Platform.isAndroid) {
+                url = versionModel?.androidUrl ?? '';
+              }
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url));
+              }
+            },
+          ),
+        );
+      } else {
+        // Already up to date
+        showCustomSizeDialog(
+          // ignore: use_build_context_synchronously
+          context,
+          barrierDismissible: true,
+          child: SimpleDialogContent(
+            // ignore: use_build_context_synchronously
+            bodyText: useL10n(theContext: context).alreadyUpToDate,
+            // ignore: use_build_context_synchronously
+            okBtnText: useL10n(theContext: context).ok,
+          ),
+        );
+      }
+    } else if (!(versionResult?.isSuccess ?? false)) {
+      WSToast.show(versionResult?.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE),
+          gravity: ToastGravity.BOTTOM);
+    } else {
+      // Already up to date
+      showCustomSizeDialog(
+        // ignore: use_build_context_synchronously
+        context,
+        barrierDismissible: true,
+        child: SimpleDialogContent(
+          // ignore: use_build_context_synchronously
+          bodyText: useL10n(theContext: context).alreadyUpToDate,
+          // ignore: use_build_context_synchronously
+          okBtnText: useL10n(theContext: context).ok,
+        ),
+      );
+    }
+
+    EasyLoading.dismiss();
   }
 
   void _selectLanguage(BuildContext context, WidgetRef ref) {

@@ -38,6 +38,10 @@ class ChatPage extends HookConsumerWidget {
 
     final chatListState = ref.watch(chatProvider);
 
+    useEffect(() {
+      return () {};
+    }, const []);
+
     return Stack(
       children: [
         Container(

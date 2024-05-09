@@ -35,6 +35,7 @@
     "registerFailure": "用户注册失败，原因未知，请联系管理员",
     "registrationTitle": "用户注册",
     "currentVersionInfo": "当前版本",
+    "checkUpdate": "检测更新",
     "currentLang": "语言",
     "chatCompleteMark": "对话已结束",
     "clickToEndChat": "点击结束当前会话",
@@ -58,5 +59,11 @@
     "requestMicSetting": "使用语音功能请去app相关设置里打开“麦克风”使用权限",
     "requestAlbumSetting": "使用相册功能请去app相关设置里打开“相册”使用权限",
     "requestCameraSetting": "使用拍照功能请去app相关设置里打开“相机”使用权限",
-    "goSetting": "去设置"
+    "goSetting": "去设置",
+    "newVersionFound": "升级提醒",
+    "versionNumber": "新版本",
+    "versionContent": "更新内容",
+    "notNow": "暂不",
+    "goUpgrade": "去升级",
+    "alreadyUpToDate": "您当前已经是最新版本"
 }
