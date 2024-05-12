@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
 import '../v/common_widgets/toast.dart';
 import 'constant.dart';
 
@@ -27,6 +29,8 @@ String getErrorMessage(String code) {
     case CODE_INVALID_OPERATION:
       message = '操作异常，请重试';
       break;
+    case CODE_FILE_NOT_FOUND:
+      message = '文件未找到';
     default:
       message = '';
       break;
@@ -46,8 +50,8 @@ String getErrorCode(Exception ex) {
   return '0';
 }
 
-Future<void> handleException(GeneralException e) async {
-  WSToast.show(getErrorMessage(e.code ?? ''));
+Future<void> handleException(GeneralException e, {ToastGravity? gravity}) async {
+  WSToast.show(getErrorMessage(e.code ?? ''), gravity: gravity ?? ToastGravity.CENTER);
 
   if (e.code == '000000') {
     // 如果是token过期的异常，那么直接跳转到登录界面

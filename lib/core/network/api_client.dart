@@ -259,51 +259,67 @@ class ApiClient {
   /*
    * Download file
    */
-  Future<dynamic> downloadFile(String path, String savePath,
-      {String? myBaseUrl,
-      Map<String, String>? headers,
-      Map<String, dynamic>? queryParams,
-      Function? progressCallback,
+  Future<dynamic> downloadFile(String url, String savePath,
+      {
+      // Map<String, String>? headers,
+      // Map<String, dynamic>? queryParams,
+      Function(int receive, int total, CancelToken cancelToken)? onReceiveProgress,
       int timeout = NETWORK_TIMEOUT}) async {
     try {
       await _checkNetwork();
-      var url = getBaseUrl(overridedBaseUrl: myBaseUrl) + path;
-      final newHeaders = await getHeaders(newHeaders: headers);
+      // final newHeaders = await getHeaders(newHeaders: headers);
       CancelToken cancelToken = CancelToken();
       final response = await client
           .download(
             url,
             savePath,
-            queryParameters: queryParams,
-            options: Options(headers: newHeaders, responseType: ResponseType.bytes),
-            onReceiveProgress: progressCallback == null
+            // queryParameters: queryParams,
+            cancelToken: cancelToken,
+            options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              // validateStatus: (status) => (status ?? 0) < 500,
+            ),
+            //Options(headers: newHeaders, responseType: ResponseType.bytes),
+            onReceiveProgress: onReceiveProgress == null
                 ? null
-                : (int count, int total) {
+                : (int receive, int total) {
                     if (total == -1) {
                       // Unknown response size make it always 50% default
-                      total = count * 2;
+                      total = receive * 2;
                     }
-                    progressCallback(count, total, cancelToken);
+                    onReceiveProgress(receive, total, cancelToken);
                   },
           )
           .timeout(Duration(seconds: timeout));
 
       Log.d(TAG, '''url:$url
-      headers: ${json.encode(newHeaders)}
-      response: ${json.encode(response.data)}
+      response headers: ${response.headers}
+      response data: ${response.data}
       ''');
 
-      var statusCode = response.statusCode;
-      var responseBody = response.data;
+      // var statusCode = response.statusCode;
+      // var responseBody = response.data;
       // _checkStatusCode(isRestApi, responseBody, statusCode);
-      return responseBody;
-    } on GeneralException {
-      rethrow;
-    } on TimeoutException {
-      rethrow;
-    } on Exception {
-      throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+      return response;
+    } on DioException catch (e) {
+      // Both error and response null means this cancelled by user manually
+      if (e.type != DioExceptionType.cancel) {
+        if (e.response != null) {
+          if (e.response?.statusCode == 404) {
+            throw GeneralException(code: CODE_FILE_NOT_FOUND, message: getErrorMessage(CODE_FILE_NOT_FOUND));
+          }
+          rethrow;
+        }
+      }
     }
+    //  on GeneralException {
+    //   rethrow;
+    // } on TimeoutException {
+    //   rethrow;
+    // } on Exception {
+    //   throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: getErrorMessage(CODE_SERVICE_UNAVAILABLE));
+    // }
   }
 
   /*

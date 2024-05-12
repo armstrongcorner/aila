@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:aila/core/network/api_client.dart';
 import 'package:aila/core/constant.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../chat_context_model.dart';
 import '../search_content_result_model.dart';
-import '../upload_content_result_model.dart';
 
 final searchApiProvider = Provider.autoDispose<SearchApi>((ref) => SearchApi(apiClient: ref.read(apiClientProvider)));
 
@@ -76,30 +73,6 @@ class SearchApi {
         'max_tokens': 4096,
         'messages': buildUplinkMessages(chatList),
       },
-      myBaseUrl: CHAT_URL,
-    );
-    var searchResultModel = SearchContentResultModel.fromJson(res);
-    return searchResultModel;
-  }
-
-  Future<UploadContentResultModel?> upload(
-      {required File file, String? folder, Function(int sent, int total)? onSendProgress}) async {
-    var res = await apiClient.uploadFiles(
-      '/storage/intensivechatdev/${folder ?? 'dev'}',
-      [file.path],
-      fileFieldName: 'incomingFile',
-      onSendProgress: onSendProgress,
-      myBaseUrl: CHAT_URL,
-    );
-    var uploadResultModel = UploadContentResultModel.fromJson(res);
-    return uploadResultModel;
-  }
-
-  Future<SearchContentResultModel?> uploadAudio({required File file}) async {
-    var res = await apiClient.uploadFiles(
-      '/chat/balance/whisper',
-      [file.path],
-      fileFieldName: 'audioFile',
       myBaseUrl: CHAT_URL,
     );
     var searchResultModel = SearchContentResultModel.fromJson(res);

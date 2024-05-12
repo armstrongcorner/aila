@@ -65,5 +65,18 @@
     "versionContent": "更新内容",
     "notNow": "暂不",
     "goUpgrade": "去升级",
-    "alreadyUpToDate": "您当前已经是最新版本"
+    "alreadyUpToDate": "您当前已经是最新版本",
+    "downloadAndInstall": "下载安装",
+    "existAndInstall": "文件已存在，是否直接安装？",
+    "downloadAgain": "重新下载",
+    "install": "安装",
+    "retry": "重试",
+    "stopDownloading": "停止下载",
+    "finishDownload": "下载完成，要立即安装吗？",
+    "downloadStopped": "当前下载已停止",
+    "downloadFailed": "糟糕，下载出错了，要重试么？",
+    "installingTip": "安装中，请稍后...",
+    "exitAndRestart": "退出",
+    "installDoneTip": "安装更新成功！请点击下方按钮退出app，并手动重启app",
+    "installErr": "安装错误"
 }

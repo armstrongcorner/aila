@@ -15,6 +15,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:install_plugin/install_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
@@ -23,6 +24,7 @@ import '../../core/use_l10n.dart';
 import '../../m/chat_context_model.dart';
 import '../../vm/chat_provider.dart';
 import '../common_widgets/simple_dialog_content.dart';
+import '../setting/download_install_screen.dart';
 import 'chat_audio_record_overlay.dart';
 import 'chat_content.dart';
 
@@ -55,7 +57,7 @@ class ChatPage extends HookConsumerWidget {
             showCustomSizeDialog(
               // ignore: use_build_context_synchronously
               context,
-              barrierDismissible: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false),
+              barrierDismissible: false,
               child: SimpleDialogContent(
                 // ignore: use_build_context_synchronously
                 titleText: useL10n(theContext: context).newVersionFound,
@@ -68,16 +70,21 @@ class ChatPage extends HookConsumerWidget {
                     : null,
                 // ignore: use_build_context_synchronously
                 okBtnText: useL10n(theContext: context).goUpgrade,
-                onClickOK: () async {
+                onClickOK: () {
                   // Jump to appstore or download apk file
-                  var url = '';
                   if (Platform.isIOS) {
-                    url = versionModel?.iosUrl ?? '';
+                    // final appstoreUrl = Uri.parse(versionModel?.iosUrl ?? '');
+                    // if (await canLaunchUrl(appstoreUrl)) {
+                    //   await launchUrl(appstoreUrl);
+                    // }
+                    InstallPlugin.install(versionModel?.iosUrl ?? '');
                   } else if (Platform.isAndroid) {
-                    url = versionModel?.androidUrl ?? '';
-                  }
-                  if (await canLaunchUrl(Uri.parse(url))) {
-                    await launchUrl(Uri.parse(url));
+                    showCustomSizeDialog(
+                      // ignore: use_build_context_synchronously
+                      context,
+                      barrierDismissible: false,
+                      child: DownloadInstallScreen(url: versionModel?.androidUrl ?? ''),
+                    );
                   }
                 },
               ),

@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:aila/core/utils/string_util.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../v/common_widgets/simple_dialog_content.dart';
@@ -28,7 +32,8 @@ Future<bool> getPermissionStatus(BuildContext context, Permission permission,
     }
   } else if (status.isRestricted) {
     requestPermission(context, permission, needGoSettingTip: needGoSettingTip, tipContent: tipContent);
-  } else {}
+  }
+
   return false;
 }
 
@@ -50,4 +55,26 @@ void requestPermission(BuildContext context, Permission permission,
       ),
     );
   }
+}
+
+Future<bool> isFileDownloaded(String url) async {
+  final fileName = getFlieName(url: url);
+  if (isNotEmpty(fileName)) {
+    String storagePath = (await getExternalStorageDirectory())?.path ?? '';
+    String filePath = '$storagePath/$fileName';
+    File file = File(filePath);
+    return file.existsSync();
+  }
+
+  return false;
+}
+
+Future<String> getLocalFilePathFrom(String url) async {
+  final fileName = getFlieName(url: url);
+  if (isNotEmpty(fileName)) {
+    String storagePath = (await getExternalStorageDirectory())?.path ?? '';
+    return '$storagePath/$fileName';
+  }
+
+  return '';
 }

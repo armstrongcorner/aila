@@ -8,6 +8,17 @@ enum ChatStatus {
   failure, // Something wrong with send or get response, mark the context as failure and show
 }
 
+enum DownlodInstallStatus {
+  existed,
+  downloading,
+  downloaded,
+  donwloadStopped,
+  downloadFailed,
+  installing,
+  installed,
+  installFailed,
+}
+
 /*
  * Hive related
  */
@@ -33,6 +44,8 @@ const String CHAT_URL = 'https://intensiveconversedev.azurewebsites.net/api';
  */
 const String CODE_OK = '200';
 const String CODE_SERVICE_UNAVAILABLE = '0';
+const String CODE_SERVICE_NOT_FOUND = '404';
+const String CODE_FILE_NOT_FOUND = '5404';
 const String CODE_NETWORK_EXCEPTION = '4444';
 const String CODE_INVALID_OPERATION = '400';
 const String CODE_NETWORK_TIMEOUT = '504';

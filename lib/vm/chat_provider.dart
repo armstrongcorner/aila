@@ -7,6 +7,7 @@ import 'package:aila/core/utils/date_util.dart';
 import 'package:aila/core/utils/image_util.dart';
 import 'package:aila/core/utils/string_util.dart';
 import 'package:aila/m/datasources/local/chat_local_data_source.dart';
+import 'package:aila/m/datasources/misc_api.dart';
 import 'package:aila/m/search_content_result_model.dart';
 import 'package:aila/m/upload_content_result_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -18,11 +19,12 @@ import '../m/chat_context_model.dart';
 import '../m/datasources/search_api.dart';
 
 final chatProvider = StateNotifierProvider.autoDispose<ChatsProvider, AsyncValue<List<ChatContextModel>>>((ref) =>
-    ChatsProvider(
-        ref.read(chatLocalDataSourceProvider), ref.read(searchApiProvider), ref.read(sessionManagerProvider)));
+    ChatsProvider(ref.read(chatLocalDataSourceProvider), ref.read(searchApiProvider), ref.read(miscApiProvider),
+        ref.read(sessionManagerProvider)));
 
 class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
-  ChatsProvider(this._chatLocalDataSource, this._searchApi, this._sessionManager) : super(const AsyncData([])) {
+  ChatsProvider(this._chatLocalDataSource, this._searchApi, this._miscApi, this._sessionManager)
+      : super(const AsyncData([])) {
     getChatHistory();
   }
 
@@ -30,6 +32,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
 
   final ChatLocalDataSource _chatLocalDataSource;
   final SearchApi _searchApi;
+  final MiscApi _miscApi;
   final SessionManager _sessionManager;
   List<ChatHiveModel>? chatHiveList;
 
@@ -121,7 +124,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
           // Audio part
           taskList.add(Future(() async {
             final audioFile = File(chatModel.fileAccessUrl ?? '');
-            SearchContentResultModel? searchContentResultModel = await _searchApi.uploadAudio(file: audioFile);
+            SearchContentResultModel? searchContentResultModel = await _miscApi.uploadAudio(file: audioFile);
             return {i: searchContentResultModel};
           }));
         } else if (chatModel.type == 'image' && chatModel.status == ChatStatus.uploading) {
@@ -130,7 +133,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
             // The image file from asset entity
             AssetEntity assetEntity = chatModel.content;
             final croppedImageFile = await ImageUtil.resizeImage(imageEntity: assetEntity);
-            UploadContentResultModel? uploadContentResultModel = await _searchApi.upload(
+            UploadContentResultModel? uploadContentResultModel = await _miscApi.upload(
               file: croppedImageFile, //(await assetEntity.file) ?? File(''),
               onSendProgress: (sent, total) async {
                 chatList[i] = chatModel.copyWith(receivedSize: sent);

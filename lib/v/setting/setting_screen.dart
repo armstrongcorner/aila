@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:aila/core/route/app_route.dart';
 import 'package:aila/core/utils/log.dart';
 import 'package:aila/core/utils/sp_util.dart';
-import 'package:aila/m/datasources/misc_api.dart';
-import 'package:aila/m/version_result_model.dart';
 import 'package:aila/v/common_widgets/simple_dialog_content.dart';
+import 'package:aila/v/setting/download_install_screen.dart';
 import 'package:aila/vm/misc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,6 +12,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:install_plugin/install_plugin.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -34,6 +34,9 @@ class SettingPage extends HookConsumerWidget {
     final chatListState = ref.watch(chatProvider);
     final versionNumber = useState('-');
     final buildNumber = useState('-');
+
+    final receiveByte = useState(0);
+    final totalByte = useState(0);
 
     useEffect(() {
       // init here
@@ -94,7 +97,7 @@ class SettingPage extends HookConsumerWidget {
                           content:
                               '${useL10n(theContext: context).currentVersionInfo}: ${versionNumber.value}(${buildNumber.value})',
                           bottomBorder: false,
-                          onTap: () => _checkUpdate(context, ref),
+                          onTap: () => _checkUpdate(context, ref, receiveByte, totalByte),
                           overrideBackgroundColor: false,
                         ),
                       );
@@ -175,7 +178,8 @@ class SettingPage extends HookConsumerWidget {
     );
   }
 
-  void _checkUpdate(BuildContext context, WidgetRef ref) async {
+  void _checkUpdate(
+      BuildContext context, WidgetRef ref, ValueNotifier<int> receiveByte, ValueNotifier<int> totalByte) async {
     EasyLoading.show(
       maskType: EasyLoadingMaskType.clear,
     );
@@ -187,7 +191,7 @@ class SettingPage extends HookConsumerWidget {
         showCustomSizeDialog(
           // ignore: use_build_context_synchronously
           context,
-          barrierDismissible: (versionModel?.needUpgrade ?? false) && !(versionModel?.forceUpgrade ?? false),
+          barrierDismissible: false,
           child: SimpleDialogContent(
             // ignore: use_build_context_synchronously
             titleText: useL10n(theContext: context).newVersionFound,
@@ -200,16 +204,21 @@ class SettingPage extends HookConsumerWidget {
                 : null,
             // ignore: use_build_context_synchronously
             okBtnText: useL10n(theContext: context).goUpgrade,
-            onClickOK: () async {
+            onClickOK: () {
               // Jump to appstore or download apk file
-              var url = '';
               if (Platform.isIOS) {
-                url = versionModel?.iosUrl ?? '';
+                // final appstoreUrl = Uri.parse(versionModel?.iosUrl ?? '');
+                // if (await canLaunchUrl(appstoreUrl)) {
+                //   await launchUrl(appstoreUrl);
+                // }
+                InstallPlugin.install(versionModel?.iosUrl ?? '');
               } else if (Platform.isAndroid) {
-                url = versionModel?.androidUrl ?? '';
-              }
-              if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url));
+                showCustomSizeDialog(
+                  // ignore: use_build_context_synchronously
+                  context,
+                  barrierDismissible: false,
+                  child: DownloadInstallScreen(url: versionModel?.androidUrl ?? ''),
+                );
               }
             },
           ),

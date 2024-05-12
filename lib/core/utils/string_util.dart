@@ -1,3 +1,5 @@
+import 'log.dart';
+
 String toSnakeCase(String value) {
   return value.replaceAllMapped(RegExp(r'[A-Z]'), (Match match) => '_' + match[0]!.toLowerCase());
 }
@@ -35,4 +37,17 @@ bool isContain(
   }
 
   return false;
+}
+
+String getFlieName({required String url}) {
+  try {
+    if (isNotEmpty(url)) {
+      List<String> lstStr = url.split('/');
+      return lstStr.last;
+    }
+  } catch (e) {
+    Log.d('StringUtil', 'error when get file name $e');
+  }
+
+  return '';
 }

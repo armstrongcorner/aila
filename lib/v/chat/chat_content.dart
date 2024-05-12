@@ -107,13 +107,17 @@ class ChatContent extends HookConsumerWidget {
                           //   margin: EdgeInsets.fromLTRB(2, 16, 0, 0),
                           // ),
                           Container(
-                            decoration: const BoxDecoration(boxShadow: [
-                              BoxShadow(
-                                offset: Offset(4.0, 7.0),
-                                color: Color(0x04000000),
-                                blurRadius: 10,
-                              ),
-                            ], color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(10))),
+                            decoration: const BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: Offset(4.0, 7.0),
+                                  color: Color(0x04000000),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
                             margin: EdgeInsets.only(top: 5.h, left: 10.w),
                             padding: EdgeInsets.fromLTRB(10.w, 10.h, 10.w, 10.h),
                             child: item.status == ChatStatus.waiting

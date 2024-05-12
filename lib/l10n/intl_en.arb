@@ -65,5 +65,18 @@
     "versionContent": "Update",
     "notNow": "Not now",
     "goUpgrade": "Go upgrade",
-    "alreadyUpToDate": "You’re up-to-date!"
+    "alreadyUpToDate": "You’re up-to-date!",
+    "downloadAndInstall": "Download & Install",
+    "existAndInstall": "File already exist, install now?",
+    "downloadAgain": "Re-download ",
+    "install": "Install",
+    "retry": "Retry",
+    "stopDownloading": "Stop",
+    "finishDownload": "Finish downloading, install now?",
+    "downloadStopped": "This download stopped",
+    "downloadFailed": "Oops...something wrong in downloading. Retry？",
+    "installingTip": "Install, please wait...",
+    "exitAndRestart": "Quit",
+    "installDoneTip": "Successfully installed! Please click the 'Quit' to exit the app, and re-launch the app manually.",
+    "installErr": "Install error"
 }
