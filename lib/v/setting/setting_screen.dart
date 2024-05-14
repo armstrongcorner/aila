@@ -207,10 +207,6 @@ class SettingPage extends HookConsumerWidget {
             onClickOK: () {
               // Jump to appstore or download apk file
               if (Platform.isIOS) {
-                // final appstoreUrl = Uri.parse(versionModel?.iosUrl ?? '');
-                // if (await canLaunchUrl(appstoreUrl)) {
-                //   await launchUrl(appstoreUrl);
-                // }
                 InstallPlugin.install(versionModel?.iosUrl ?? '');
               } else if (Platform.isAndroid) {
                 showCustomSizeDialog(

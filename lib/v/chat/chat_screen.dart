@@ -11,12 +11,12 @@ import 'package:aila/v/common_widgets/toast.dart';
 import 'package:aila/vm/misc_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:install_plugin/install_plugin.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import '../../core/general_exception.dart';
@@ -73,10 +73,6 @@ class ChatPage extends HookConsumerWidget {
                 onClickOK: () {
                   // Jump to appstore or download apk file
                   if (Platform.isIOS) {
-                    // final appstoreUrl = Uri.parse(versionModel?.iosUrl ?? '');
-                    // if (await canLaunchUrl(appstoreUrl)) {
-                    //   await launchUrl(appstoreUrl);
-                    // }
                     InstallPlugin.install(versionModel?.iosUrl ?? '');
                   } else if (Platform.isAndroid) {
                     showCustomSizeDialog(
@@ -440,9 +436,10 @@ class ChatPage extends HookConsumerWidget {
                                     Visibility(
                                       visible: isNotEmptyList(finalAssetList.value),
                                       child: Padding(
-                                        padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h),
+                                        padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
                                         child: Row(
                                           children: [
+                                            // Selected images
                                             for (int i = 0; i < finalAssetList.value.length; i++) ...[
                                               Stack(
                                                 children: [
@@ -487,6 +484,18 @@ class ChatPage extends HookConsumerWidget {
                                               ),
                                               SizedBox(width: 8.w),
                                             ],
+                                            // Request location switch
+                                            Expanded(
+                                              child: Align(
+                                                alignment: Alignment.centerRight,
+                                                child: IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(
+                                                      Icons.add_location_alt,
+                                                      color: Colors.blue,
+                                                    )),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
