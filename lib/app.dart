@@ -25,6 +25,7 @@ class App extends HookConsumerWidget {
       designSize: const Size(WSSize.designWidth, WSSize.designHeight),
       builder: (context, child) {
         return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
           localizationsDelegates: const [
             L10n.delegate,
             GlobalMaterialLocalizations.delegate,

@@ -82,4 +82,6 @@ final downloadProvider = FutureProvider.autoDispose.family<File?, DownloadParams
       handleException(e, gravity: ToastGravity.BOTTOM);
     }
   }
+
+  return null;
 });

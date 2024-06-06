@@ -48,7 +48,7 @@ final requestEmailProvider = FutureProvider.autoDispose.family<AuthResultModel?,
     final sessionManager = ref.read(sessionManagerProvider);
 
     // 1) use super user to login
-    final AuthResultModel? tempModel = await userApi.login('withouthammer', 'withouthammer');
+    final AuthResultModel? tempModel = await userApi.login('matrixthoughtsadmin', 'Nbq4dcz123');
     if (tempModel != null && (tempModel.isSuccess ?? false)) {
       // 2) use the token to access send email api
       await sessionManager.setToken(tempModel.value?.token ?? '');
@@ -127,6 +127,20 @@ final completeRegisterProvider =
  * End of the register procedure.
  * ---------------------------------
  */
+
+final suspendUserProvider = FutureProvider.autoDispose.family<UserInfoResultModel?, String>((ref, username) async {
+  try {
+    final userApi = ref.read(userApiProvider);
+    final UserInfoResultModel? userInfoResultModel = await userApi.suspendUser(username);
+    if (userInfoResultModel != null) {
+      return userInfoResultModel;
+    }
+  } catch (e) {
+    throw GeneralException(code: CODE_SERVICE_UNAVAILABLE, message: e.toString());
+  }
+
+  return null;
+});
 
 final authProvider = StateNotifierProvider<AuthProvider, RequestState<AuthResultModel?>>(
     (ref) => AuthProvider(ref.read(userApiProvider)));

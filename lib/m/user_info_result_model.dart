@@ -11,8 +11,7 @@ class UserInfoResultModel with _$UserInfoResultModel {
     @JsonKey(name: 'isSuccess') bool? isSuccess,
   }) = _UserInfoResultModel;
 
-  factory UserInfoResultModel.fromJson(Map<String, dynamic> json) =>
-      _$UserInfoResultModelFromJson(json);
+  factory UserInfoResultModel.fromJson(Map<String, dynamic> json) => _$UserInfoResultModelFromJson(json);
 }
 
 @freezed
@@ -26,12 +25,13 @@ class UserInfoModel with _$UserInfoModel {
     @JsonKey(name: 'email') String? email,
     @JsonKey(name: 'tokenDurationInMin') int? tokenDurationInMin,
     @JsonKey(name: 'isActive') bool? isActive,
+    @JsonKey(name: 'serviceLevel') int? serviceLevel,
+    @JsonKey(name: 'language') String? language,
     @JsonKey(name: 'createdDateTime') String? createdDateTime,
     @JsonKey(name: 'updatedDateTime') String? updatedDateTime,
     @JsonKey(name: 'createdBy') String? createdBy,
     @JsonKey(name: 'updatedBy') String? updatedBy,
   }) = _UserInfoModel;
 
-  factory UserInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$UserInfoModelFromJson(json);
+  factory UserInfoModel.fromJson(Map<String, dynamic> json) => _$UserInfoModelFromJson(json);
 }

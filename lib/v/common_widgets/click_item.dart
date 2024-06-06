@@ -14,6 +14,7 @@ class ClickItem extends StatelessWidget {
     this.padding = const EdgeInsets.fromLTRB(0, 15.0, 15.0, 15.0),
     this.margin = const EdgeInsets.only(left: 16.0),
     this.overrideBackgroundColor = false,
+    this.overrideTitleColor,
   }) : super(key: key);
 
   final GestureTapCallback? onTap;
@@ -25,6 +26,7 @@ class ClickItem extends StatelessWidget {
   final EdgeInsets margin;
   final EdgeInsets padding;
   final bool overrideBackgroundColor;
+  final Color? overrideTitleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +35,22 @@ class ClickItem extends StatelessWidget {
       child: Container(
         margin: margin,
         padding: padding,
-        constraints:
-            BoxConstraints(maxHeight: double.infinity, minHeight: 50.h),
+        constraints: BoxConstraints(maxHeight: double.infinity, minHeight: 50.h),
         width: double.infinity,
         decoration: BoxDecoration(
-            color: overrideBackgroundColor
-                ? Colors.transparent
-                : WSColor.primaryBgColor,
+            color: overrideBackgroundColor ? Colors.transparent : WSColor.primaryBgColor,
             border: Border(
               bottom: bottomBorder
-                  ? Divider.createBorderSide(context,
-                      width: 0.5, color: Colors.grey.withOpacity(0.5))
+                  ? Divider.createBorderSide(context, width: 0.5, color: Colors.grey.withOpacity(0.5))
                   : BorderSide.none,
             )),
         child: Row(
-          crossAxisAlignment: maxLines == 1
-              ? CrossAxisAlignment.center
-              : CrossAxisAlignment.start,
+          crossAxisAlignment: maxLines == 1 ? CrossAxisAlignment.center : CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               title,
               style: TextStyle(
-                color: WSColor.primaryFontColor,
+                color: overrideTitleColor ?? WSColor.primaryFontColor,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w500,
               ),

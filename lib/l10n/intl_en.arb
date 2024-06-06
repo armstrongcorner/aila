@@ -78,5 +78,8 @@
     "installingTip": "Install, please wait...",
     "exitAndRestart": "Quit",
     "installDoneTip": "Successfully installed! Please click the 'Quit' to exit the app, and re-launch the app manually.",
-    "installErr": "Install error"
+    "installErr": "Install error",
+    "deleteAccount": "Delete account",
+    "importantTip": "Warning",
+    "confirmDeleteAccountTip": "After deleting your account, your data will no longer be saved in this application, and you will no longer be able to use this account to log in to this application. If you want to continue using your account after deleting it, please register again. \n\nAre you sure to delete the account?"
 }

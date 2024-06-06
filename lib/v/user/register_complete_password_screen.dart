@@ -95,7 +95,7 @@ class RegisterCompletePasswordScreen extends HookConsumerWidget {
                   SizedBox(height: 15.h),
                   const Spacer(flex: 2),
                   SizedBox(
-                    width: 180.w,
+                    width: 220.w,
                     height: 40.h,
                     child: WSLoadingButton(
                       onPressed: () async {

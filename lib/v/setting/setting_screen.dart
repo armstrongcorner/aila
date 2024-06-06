@@ -14,13 +14,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constant.dart';
 import '../../core/general_exception.dart';
 import '../../core/session_manager.dart';
 import '../../core/use_l10n.dart';
+import '../../m/datasources/user_api.dart';
 import '../../vm/chat_provider.dart';
+import '../../vm/user_provider.dart';
 import '../common_widgets/click_item.dart';
 import '../common_widgets/color.dart';
 import '../common_widgets/loading_button.dart';
@@ -84,7 +85,7 @@ class SettingPage extends HookConsumerWidget {
               children: [
                 ListView.builder(
                   shrinkWrap: true,
-                  itemCount: 3,
+                  itemCount: 4,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return SizedBox(
@@ -127,6 +128,20 @@ class SettingPage extends HookConsumerWidget {
                               '${useL10n(theContext: context).totalChatCount} ${(chatListState.value ?? []).length}',
                           bottomBorder: false,
                           onTap: () => _clearChat(context, ref),
+                          overrideBackgroundColor: false,
+                        ),
+                      );
+                    } else if (index == 3) {
+                      return SizedBox(
+                        width: 1.0.sw,
+                        height: 100.h,
+                        child: ClickItem(
+                          title: useL10n(theContext: context).deleteAccount,
+                          overrideTitleColor: Colors.red,
+                          margin: const EdgeInsets.all(0),
+                          padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                          bottomBorder: false,
+                          onTap: () => _deleteAccount(context, ref),
                           overrideBackgroundColor: false,
                         ),
                       );
@@ -337,6 +352,42 @@ class SettingPage extends HookConsumerWidget {
         okBtnText: useL10n(theContext: context).ok,
         onClickOK: () async {
           ref.read(chatProvider.notifier).clearChatHistory();
+        },
+      ),
+    );
+  }
+
+  void _deleteAccount(BuildContext context, WidgetRef ref) {
+    showCustomSizeDialog(
+      context,
+      barrierDismissible: true,
+      child: SimpleDialogContent(
+        topIcon: Icon(Icons.warning, color: Colors.yellow, size: 40.w),
+        titleText: useL10n(theContext: context).importantTip,
+        bodyText: useL10n(theContext: context).confirmDeleteAccountTip,
+        cancelBtnText: useL10n(theContext: context).cancel,
+        okBtnText: useL10n(theContext: context).ok,
+        onClickOK: () async {
+          EasyLoading.show(
+            maskType: EasyLoadingMaskType.clear,
+          );
+          final sessionManager = ref.read(sessionManagerProvider);
+          // 1) Inactivate the account
+          final inactiveUser = await ref.read(suspendUserProvider(sessionManager.getUsername()).future);
+          if (inactiveUser?.value != null &&
+              (inactiveUser?.isSuccess ?? false) &&
+              inactiveUser?.value?.isActive == false) {
+            // 2) Clear chat history
+            ref.read(chatProvider.notifier).clearChatHistory();
+            // 3) Logout and clear username
+            sessionManager.logout(keepUsername: false);
+            final appRoute = ref.read(appRouterProvider);
+            appRoute.go(RouteURL.login);
+          } else {
+            WSToast.show(inactiveUser?.failureReason ?? getErrorMessage(CODE_SERVICE_UNAVAILABLE),
+                gravity: ToastGravity.BOTTOM);
+          }
+          EasyLoading.dismiss();
         },
       ),
     );

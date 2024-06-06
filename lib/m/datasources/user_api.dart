@@ -93,4 +93,16 @@ class UserApi {
     var verifyResultModel = AuthResultModel.fromJson(res);
     return verifyResultModel;
   }
+
+  Future<UserInfoResultModel?> suspendUser(String username) async {
+    var res = await apiClient.post(
+      '/identity/user/suspend',
+      {
+        'username': username,
+      },
+      myBaseUrl: USER_URL,
+    );
+    var userInfoResultModel = UserInfoResultModel.fromJson(res);
+    return userInfoResultModel;
+  }
 }
