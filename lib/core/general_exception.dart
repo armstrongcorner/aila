@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aila/core/use_l10n.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../v/common_widgets/toast.dart';
@@ -22,15 +23,17 @@ String getErrorMessage(String code) {
   String message;
   switch (code) {
     case CODE_SERVICE_UNAVAILABLE:
-      message = '服务器故障，请联系管理员';
+      message = useL10n().errServiceUnavailable;
+      break;
     case CODE_NETWORK_EXCEPTION:
-      message = '当前无网络连接，请重试';
+      message = useL10n().errNetworkUnavailable;
       break;
     case CODE_INVALID_OPERATION:
-      message = '操作异常，请重试';
+      message = useL10n().errInvalidOperation;
       break;
     case CODE_FILE_NOT_FOUND:
-      message = '文件未找到';
+      message = useL10n().errFileUnavailable;
+      break;
     default:
       message = '';
       break;

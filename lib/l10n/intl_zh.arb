@@ -81,5 +81,9 @@
     "installErr": "安装错误",
     "deleteAccount": "删除账号",
     "importantTip": "重要提示",
-    "confirmDeleteAccountTip": "删除账号后，您的数据将不再保存在本应用中，并且将不能再使用该账号登陆本应用。删除账号后如要继续使用，请重新注册账号。\n\n确认删除账号吗？"
+    "confirmDeleteAccountTip": "删除账号后，您的数据将不再保存在本应用中，并且将不能再使用该账号登陆本应用。删除账号后如要继续使用，请重新注册账号。\n\n确认删除账号吗？",
+    "errServiceUnavailable": "服务器故障，请联系管理员",
+    "errNetworkUnavailable": "当前无网络连接，请重试",
+    "errInvalidOperation": "操作异常，请重试",
+    "errFileUnavailable": "文件未找到"
 }
