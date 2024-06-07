@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aila/core/route/navigation_service.dart';
 import 'package:aila/core/use_l10n.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -20,19 +21,21 @@ class GeneralException implements Exception {
 }
 
 String getErrorMessage(String code) {
+  final context = NavigationService.navigatorKey.currentState?.context;
+
   String message;
   switch (code) {
     case CODE_SERVICE_UNAVAILABLE:
-      message = useL10n().errServiceUnavailable;
+      message = useL10n(theContext: context).errServiceUnavailable;
       break;
     case CODE_NETWORK_EXCEPTION:
-      message = useL10n().errNetworkUnavailable;
+      message = useL10n(theContext: context).errNetworkUnavailable;
       break;
     case CODE_INVALID_OPERATION:
-      message = useL10n().errInvalidOperation;
+      message = useL10n(theContext: context).errInvalidOperation;
       break;
     case CODE_FILE_NOT_FOUND:
-      message = useL10n().errFileUnavailable;
+      message = useL10n(theContext: context).errFileUnavailable;
       break;
     default:
       message = '';

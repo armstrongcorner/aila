@@ -199,7 +199,7 @@ class LoginForm extends HookConsumerWidget {
         },
         error: (Object error, StackTrace stackTrace) {
           FocusManager.instance.primaryFocus?.unfocus();
-          handleException(GeneralException.toGeneralException(error as Exception));
+          handleException(GeneralException.toGeneralException(error as Exception), gravity: ToastGravity.BOTTOM);
         },
       );
     } else {
