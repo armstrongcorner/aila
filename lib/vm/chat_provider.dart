@@ -135,6 +135,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
             final croppedImageFile = await ImageUtil.resizeImage(imageEntity: assetEntity);
             UploadContentResultModel? uploadContentResultModel = await _miscApi.upload(
               file: croppedImageFile, //(await assetEntity.file) ?? File(''),
+              folder: 'chat',
               onSendProgress: (sent, total) async {
                 chatList[i] = chatModel.copyWith(receivedSize: sent);
                 if (sent == total) {
@@ -187,7 +188,7 @@ class ChatsProvider extends StateNotifier<AsyncValue<List<ChatContextModel>>> {
         // 2-5) Sent the chat
         final SearchContentResultModel? resultModel = await _searchApi.search(
           chatContextList.reversed.toList(),
-          model: 'gpt-4-turbo',
+          model: 'gpt-4o',
         );
 
         // 3) Show and local cache the search result

@@ -19,7 +19,6 @@ import '../../core/constant.dart';
 import '../../core/general_exception.dart';
 import '../../core/session_manager.dart';
 import '../../core/use_l10n.dart';
-import '../../m/datasources/user_api.dart';
 import '../../vm/chat_provider.dart';
 import '../../vm/user_provider.dart';
 import '../common_widgets/click_item.dart';

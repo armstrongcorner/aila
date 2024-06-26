@@ -19,7 +19,8 @@ class MiscApi {
   Future<UploadContentResultModel?> upload(
       {required File file, String? folder, Function(int sent, int total)? onSendProgress}) async {
     var res = await apiClient.uploadFiles(
-      '/storage/intensivechatdev/${folder ?? 'dev'}',
+      // '/storage/intensivechatdev/${folder ?? 'dev'}',
+      '/storage/intensivechatprod/${folder ?? 'dev'}',
       [file.path],
       fileFieldName: 'incomingFile',
       onSendProgress: onSendProgress,
