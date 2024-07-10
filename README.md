@@ -1,3 +1,3 @@
 # aila
 
-A new Flutter project.
+A simple GPT wrapper
